@@ -1,0 +1,13 @@
+rss_map=False
+gold=False
+wood=False
+stone=False
+max_gathers=5
+delay_time=0
+interloop_time=200
+reboot_time=600
+hospital=False
+ally_gifts=true
+mana=true
+wall_repair=False
+ally_help=False

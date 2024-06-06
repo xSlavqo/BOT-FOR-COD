@@ -1,0 +1,26 @@
+{
+    "Mapa": [
+        {"type": "Checkbutton", "text": "Zbieraj surowce", "key": "rss_map", "x": 50, "y": 50},
+        {"type": "Checkbutton", "text": "Złoto", "key": "gold", "x": 50, "y": 80},
+        {"type": "Checkbutton", "text": "Drewno", "key": "wood", "x": 50, "y": 110},
+        {"type": "Checkbutton", "text": "Kamień", "key": "stone", "x": 50, "y": 140},
+        {"type": "Checkbutton", "text": "Mana", "key": "mana", "x": 50, "y": 170},
+        {"type": "Entry", "text": "Maksymalna ilość legionów", "key": "max_gathers", "x": 50, "y": 200, "width": 5}
+    ],
+
+    "Miasto": [
+        {"type": "Checkbutton", "text": "Leczenie jednostek", "key": "hospital", "x": 250, "y": 50},
+        {"type": "Checkbutton", "text": "Naprawa muru", "key": "wall_repair", "x": 250, "y": 80}
+    ],
+
+    "Sojusz": [
+        {"type": "Checkbutton", "text": "Pomoc sojuszu", "key": "ally_help", "x": 450, "y": 50},
+        {"type": "Checkbutton", "text": "Odbierz prezenty sojuszu", "key": "ally_gifts", "x": 450, "y": 80}
+    ],
+    
+    "Overall": [
+        {"type": "Entry", "text": "Opóźnienie uruchomienia", "key": "delay_time", "x": 50, "y": 270},
+        {"type": "Entry", "text": "Czas między pętlami", "key": "interloop_time", "x": 50, "y": 300},
+        {"type": "Entry", "text": "Czas restartu po błędzie", "key": "reboot_time", "x": 50, "y": 330}
+    ]
+}
