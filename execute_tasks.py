@@ -60,17 +60,31 @@ def execute_tasks():
     # Wykonywanie zadań
     for group_name, tasks in task_groups.items():
         for task_name, (task_func, interval, critical) in tasks.items():
-            if config.get(task_name, "false").lower() == "true":
-                if not can_execute_task(task_name, interval, current_time):
-                    continue
+            task_config = config.get(task_name)
+            
+            if task_config is None and critical:
+                # Brak klucza i zadanie krytyczne - wykonaj zadanie
+                execute_task(task_name, task_func, interval, current_time, critical)
+            elif task_config and task_config.lower() == "true":
+                # Klucz istnieje i jest ustawiony na true
+                execute_task(task_name, task_func, interval, current_time, critical)
+            elif task_config and task_config.lower() == "false" and critical:
+                # Klucz ustawiony na false i zadanie krytyczne - pomiń zadanie
+                print(f"Krytyczne zadanie {task_name} ustawione na false - nie wykonano.")
+            else:
+                print(f"Zadanie {task_name} pominięte - ustawienie false lub brak w konfiguracji.")
+                
 
-                if task_func:
-                    try:
-                        task_func()
-                        update_last_execution_time(task_name, current_time)
-                        time.sleep(2)
-                    except Exception as e:
-                        print(f"Zadanie {task_name} nie powiodło się: {e}")
-                        if critical:
-                            print(f"Krytyczne zadanie {task_name} nie powiodło się, zatrzymanie wykonywania.")
-                            return  # Przerywamy dalsze wykonywanie, gdy zadanie krytyczne nie powiedzie się
+def execute_task(task_name, task_func, interval, current_time, critical):
+    if not can_execute_task(task_name, interval, current_time):
+        return
+
+    try:
+        task_func()
+        update_last_execution_time(task_name, current_time)
+        time.sleep(2)  # Przerwa tylko jeśli zadanie zostało wykonane
+    except Exception as e:
+        print(f"Zadanie {task_name} nie powiodło się: {e}")
+        if critical:
+            print(f"Krytyczne zadanie {task_name} nie powiodło się, zatrzymanie wykonywania.")
+            return  # Przerywamy dalsze wykonywanie, gdy zadanie krytyczne nie powiedzie się
