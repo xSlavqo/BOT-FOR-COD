@@ -10,7 +10,7 @@ from tools.functions import load_settings, load_config
 from widgets import create_widgets
 from execute_tasks import execute_tasks
 from func_timeout import FunctionTimedOut
-from tasks.cod import restart
+from tasks.windows_management import restart
 import json
 
 def open_window_on_specific_monitor(root, width, height, monitor_index):

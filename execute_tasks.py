@@ -3,7 +3,7 @@ from func_timeout import func_timeout, FunctionTimedOut
 from tasks.rss_map import rss_map
 from tasks.alliance import ally_help, ally_gifts
 from tasks.hospital import hospital
-from tasks.cod import cod
+from tasks.windows_management import cod_run, tv_close
 from tools.functions import load_settings
 
 # Funkcja opakowująca zadanie opcjonalnym timeoutem
@@ -21,10 +21,11 @@ def task_with_optional_timeout(task_func, timeout=None):
 # Definiowanie grup z funkcjami i ich właściwościami
 task_groups = {
     "GENERAL": {
-        "cod": (cod, 100, 0, True)  # True oznacza, że jest krytyczne
+        "tvclose": (tv_close, 100, 0, True),
+        "cod": (cod_run, 100, 0, True)
     },
     "MAPA": {
-        "rss_map": (rss_map, 120, 0, False)  # False oznacza, że nie jest krytyczne
+        "rss_map": (rss_map, 120, 0, False)
     },
     "MIASTO": {
         "hospital": (hospital, 30, 1800, False)

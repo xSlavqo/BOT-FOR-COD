@@ -4,7 +4,7 @@ import random
 import pyautogui
 import re
 import pytesseract
-from tasks.cod import cod
+from tasks.windows_management import cod
 from tools.locate import *
 from tasks.legions import legions
 from tasks.location import *

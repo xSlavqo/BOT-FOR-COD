@@ -5,7 +5,7 @@ from tools.locate import locate, locate_and_click
 
 program_path = r"C:/Program Files (x86)/Call of Dragons/launcher.exe"
 
-def cod():
+def cod_run():
     cod_window = gw.getWindowsWithTitle("Call of Dragons")
 
     if not cod_window:
@@ -23,8 +23,16 @@ def cod():
     cod_window[0].activate()
     return True
 
-def restart():
+def cod_restart():
     cod_window = gw.getWindowsWithTitle("Call of Dragons")  
-    if cod_window:
+    while cod_window:
         cod_window[0].close()
-    time.sleep(5)
+        time.sleep(1)
+        cod_window = gw.getWindowsWithTitle("Call of Dragons")
+
+def tv_close():
+    tv_window = gw.getWindowsWithTitle("Sesja sponsorowana")
+    while tv_window:
+        tv_window[0].close()
+        time.sleep(1)
+        tv_window = gw.getWindowsWithTitle("Sesja sponsorowana")
