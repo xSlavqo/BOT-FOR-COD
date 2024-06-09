@@ -1,7 +1,7 @@
 max_gathers=5
 delay_time=0
 interloop_time=120
-reboot_time=600
+reboot_time=120
 rss_map=true
 mana=true
 hospital=true

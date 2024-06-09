@@ -2,7 +2,6 @@ import time
 import pyautogui
 import re
 from tasks.location import *
-from tasks.windows_management import cod
 from tools.locate import *
 from tools.text import text
 

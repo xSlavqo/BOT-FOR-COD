@@ -10,7 +10,7 @@ from tools.functions import load_settings, load_config
 from widgets import create_widgets
 from execute_tasks import execute_tasks
 from func_timeout import FunctionTimedOut
-from tasks.windows_management import restart
+from tasks.windows_management import cod_restart
 import json
 
 def open_window_on_specific_monitor(root, width, height, monitor_index):
@@ -52,7 +52,7 @@ def start_loop():
                     interloop_time -= 1
             except FunctionTimedOut as e:
                 queue.put(f"Error: {e}\n")
-                restart()
+                cod_restart()
                 reboot_time = load_config().get('reboot_time')
                 while reboot_time > 0 and not stop_event.is_set():
                     queue.put(f"Uruchomienie po błędzie za {reboot_time} sekund\n")

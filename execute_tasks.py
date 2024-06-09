@@ -6,12 +6,11 @@ from tasks.hospital import hospital
 from tasks.windows_management import cod_run, tv_close
 from tools.functions import load_settings
 
-# Funkcja opakowująca zadanie opcjonalnym timeoutem
 def task_with_optional_timeout(task_func, timeout=None):
     def wrapper():
         if timeout:
             try:
-                task_func()
+                func_timeout(timeout, task_func)
             except FunctionTimedOut:
                 raise FunctionTimedOut(f"Zadanie {task_func.__name__} nie zostało ukończone w wyznaczonym czasie.")
         else:
@@ -21,7 +20,7 @@ def task_with_optional_timeout(task_func, timeout=None):
 # Definiowanie grup z funkcjami i ich właściwościami
 task_groups = {
     "GENERAL": {
-        "tvclose": (tv_close, 100, 0, True),
+        "tv_close": (tv_close, 100, 0, True),
         "cod": (cod_run, 100, 0, True)
     },
     "MAPA": {
@@ -74,6 +73,7 @@ def execute_tasks():
                 print(f"Krytyczne zadanie {task_name} ustawione na false - nie wykonano.")
             else:
                 print(f"Zadanie {task_name} pominięte - ustawienie false lub brak w konfiguracji.")
+
                 
 
 def execute_task(task_name, task_func, interval, current_time, critical):
@@ -84,8 +84,9 @@ def execute_task(task_name, task_func, interval, current_time, critical):
         task_func()
         update_last_execution_time(task_name, current_time)
         time.sleep(2)  # Przerwa tylko jeśli zadanie zostało wykonane
-    except Exception as e:
+    except FunctionTimedOut as e:
         print(f"Zadanie {task_name} nie powiodło się: {e}")
         if critical:
-            print(f"Krytyczne zadanie {task_name} nie powiodło się, zatrzymanie wykonywania.")
-            return  # Przerywamy dalsze wykonywanie, gdy zadanie krytyczne nie powiedzie się
+            raise e  # Rzuć wyjątek, jeśli zadanie jest krytyczne
+    except Exception as e:
+        print(f"Błąd podczas wykonywania zadania {task_name}: {e}")
