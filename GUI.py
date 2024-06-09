@@ -9,8 +9,6 @@ from queue import Queue, Empty
 from tools.functions import load_settings, load_config
 from widgets import create_widgets
 from execute_tasks import execute_tasks
-from func_timeout import FunctionTimedOut
-from tasks.windows_management import cod_restart
 import json
 
 def open_window_on_specific_monitor(root, width, height, monitor_index):
@@ -43,25 +41,16 @@ def start_loop():
                 delay_time -= 1
             first_run = False
         while not stop_event.is_set():
-            try:
-                execute_tasks()
+            error_occurred = execute_tasks(queue, stop_event)  # Przekazanie queue i stop_event do execute_tasks
+            if not error_occurred:  # Wykonanie interloop_time tylko jeśli nie było błędu
                 interloop_time = load_config().get('interloop_time')
                 while interloop_time > 0 and not stop_event.is_set():
                     queue.put(f"uruchomienie pętli za {interloop_time} sekund\n")
                     time.sleep(1)
                     interloop_time -= 1
-            except FunctionTimedOut as e:
-                queue.put(f"Error: {e}\n")
-                cod_restart()
-                reboot_time = load_config().get('reboot_time')
-                while reboot_time > 0 and not stop_event.is_set():
-                    queue.put(f"Uruchomienie po błędzie za {reboot_time} sekund\n")
-                    time.sleep(1)
-                    reboot_time -= 1
-                continue
         queue.put("BOT zatrzymany!\n")
 
-    global loop_thread, stop_event, queue
+    global stop_event, queue, loop_thread
     stop_event = Event()
     queue = Queue()
     loop_thread = Thread(target=loop, args=(stop_event, queue))

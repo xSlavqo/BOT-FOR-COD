@@ -23,7 +23,7 @@ def cod_run():
     cod_window[0].activate()
     return True
 
-def cod_restart():
+def cod_restart(queue, stop_event):
     cod_window = gw.getWindowsWithTitle("Call of Dragons")  
     while cod_window:
         cod_window[0].close()
