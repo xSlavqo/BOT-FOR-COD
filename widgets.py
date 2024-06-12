@@ -2,7 +2,6 @@ import os
 import tkinter as tk
 from tkinter import ttk
 import json
-import tkinter as tk
 
 class WidgetGroup:
     def __init__(self, frame, settings, group_config):
@@ -19,31 +18,40 @@ class WidgetGroup:
                     widget = tk.Checkbutton(self.frame, text=item['text'], variable=var)
                     var.trace_add("write", lambda *args, key=item['key'], var=var: save_value(key, var))
                     widget.place(x=item['x'], y=item['y'])
+                    self.vars[item['key']] = (widget, var)
                 elif item['type'] == 'Entry':
                     var = initialize_variable(self.settings, item['key'], tk.StringVar)
-                    # Utwórz etykietę
                     label = ttk.Label(self.frame, text=item['text'])
-                    label.place(x=0, y=0)  # Tymczasowe umieszczenie
-                    self.frame.update_idletasks()  # Aktualizacja ramki, aby uzyskać rzeczywiste wymiary etykiety
+                    label.place(x=0, y=0)
+                    self.frame.update_idletasks()
                     label_width = label.winfo_width()
-                    label_height = label.winfo_height()
-                    label.place_forget()  # Usunięcie tymczasowego umieszczenia
+                    label.place_forget()
 
-                    # Ustal pozycje etykiety
                     label_x = item.get('label_x', item['x'])
                     label_y = item.get('label_y', item['y'])
                     
-                    # Ustal szerokość i pozycję pola wejściowego
-                    entry_width = item.get('width', 4)  # Domyślna szerokość to 20 znaków
-                    entry_x = label_x + label_width + 5  # Dodaj odstęp 5 pikseli między etykietą a polem wejściowym
+                    entry_width = item.get('width', 4)
+                    entry_x = label_x + label_width + 5
                     entry_y = label_y
 
-                    # Umieść etykietę i pole wejściowe na ramce
                     label.place(x=label_x, y=label_y)
                     widget = ttk.Entry(self.frame, textvariable=var, width=entry_width)
                     var.trace_add("write", lambda *args, key=item['key'], var=var: save_value(key, var))
                     widget.place(x=entry_x, y=entry_y)
-                self.vars[item['key']] = var
+                    self.vars[item['key']] = (widget, var)
+
+        self.update_resource_buttons()
+        self.vars['rss_map'][1].trace_add('write', self.update_resource_buttons)
+
+    def update_resource_buttons(self, *args):
+        rss_map_value = self.vars['rss_map'][1].get()
+        for key in ['gold', 'wood', 'stone', 'mana']:
+            widget, var = self.vars[key]
+            if rss_map_value:
+                widget.config(state='normal')
+            else:
+                widget.config(state='disabled')
+                var.set(False)
 
 def create_widgets(frame, settings):
     script_dir = os.path.dirname(__file__)
@@ -70,7 +78,6 @@ def save_value(key, var):
     else:
         settings[key] = var.get()
 
-        # Zapisywanie zaktualizowanych wartości do pliku config.txt
     with open("config.txt", 'w', encoding='utf-8') as f:
         for k, v in settings.items():
             f.write(f"{k}={v}\n")

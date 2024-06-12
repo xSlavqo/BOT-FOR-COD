@@ -3,6 +3,7 @@ from func_timeout import func_timeout, FunctionTimedOut
 from tasks.rss_map import rss_map
 from tasks.alliance import ally_help, ally_gifts
 from tasks.hospital import hospital
+from tasks.dialogues import dialogues
 from tasks.windows_management import cod_run, cod_restart, tv_close
 from tools.functions import load_settings
 
@@ -27,7 +28,8 @@ task_groups = {
         "rss_map": (rss_map, 120, 0, False)
     },
     "MIASTO": {
-        "hospital": (hospital, 30, 1800, False)
+        "hospital": (hospital, 30, 1800, False),
+        "dialogues": (dialogues, 120, 0, False)
     },
     "MAPA LUB MIASTO": {
         "ally_help": (ally_help, 10, 0, False)

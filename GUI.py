@@ -76,7 +76,7 @@ def stop_loop():
 
 root = tk.Tk()
 root.title("BOT FOR COD")
-window_width = 800
+window_width = 1500
 window_height = 800
 open_window_on_specific_monitor(root, window_width, window_height, 0)
 
@@ -123,8 +123,9 @@ def on_closing():
     for section, items in config_data.items():
         for item in items:
             key = item['key']
-            var = widgets.vars.get(key)
-            if var is not None:
+            widget_var_tuple = widgets.vars.get(key)
+            if widget_var_tuple is not None:
+                widget, var = widget_var_tuple
                 settings[key] = "true" if isinstance(var, tk.BooleanVar) and var.get() else str(var.get())
 
     with open(config_file, 'w', encoding='utf-8') as f:
@@ -132,6 +133,7 @@ def on_closing():
             f.write(f"{key}={value}\n")
 
     root.destroy()
+
 
 root.protocol("WM_DELETE_WINDOW", on_closing)
 root.mainloop()
