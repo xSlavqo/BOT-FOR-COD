@@ -13,3 +13,7 @@ def text(region):
     custom_config = r'--oem 3 --psm 6'
     text = pytesseract.image_to_string(region_pil, lang='pol', config=custom_config)
     return text
+
+
+if __name__ == "__main__":
+    text((1067, 3, 810, 723))
