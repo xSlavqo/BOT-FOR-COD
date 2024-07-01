@@ -11,6 +11,11 @@ from widgets import create_widgets
 from execute_tasks import execute_tasks
 import json
 
+global_queue = Queue()
+stop_event = Event()
+delay_thread = None
+loop_thread = None
+
 def open_window_on_specific_monitor(root, width, height, monitor_index):
     monitors = get_monitors()
     if monitor_index < len(monitors):
@@ -30,37 +35,51 @@ class RedirectedStdout:
     def flush(self):
         pass
 
-def start_loop():
-    def loop(stop_event, queue):
-        first_run = True
-        if first_run:
-            delay_time = load_config().get('delay_time')
-            while delay_time > 0 and not stop_event.is_set():
-                queue.put(f"Uruchomienie bota za {delay_time} sekund\n")
+def loop(stop_event, queue):
+    delay_time = load_config().get('delay_time', 0)
+    while delay_time > 0 and not stop_event.is_set():
+        queue.put(f"Uruchomienie bota za {delay_time} sekund\n")
+        time.sleep(1)
+        delay_time -= 1
+    
+    while not stop_event.is_set():
+        error_occurred = execute_tasks(queue, stop_event)
+        if not error_occurred:
+            interloop_time = load_config().get('interloop_time', 0)
+            while interloop_time > 0 and not stop_event.is_set():
+                queue.put(f"uruchomienie pętli za {interloop_time} sekund\n")
                 time.sleep(1)
-                delay_time -= 1
-            first_run = False
-        while not stop_event.is_set():
-            error_occurred = execute_tasks(queue, stop_event)  # Przekazanie queue i stop_event do execute_tasks
-            if not error_occurred:  # Wykonanie interloop_time tylko jeśli nie było błędu
-                interloop_time = load_config().get('interloop_time')
-                while interloop_time > 0 and not stop_event.is_set():
-                    queue.put(f"uruchomienie pętli za {interloop_time} sekund\n")
-                    time.sleep(1)
-                    interloop_time -= 1
-        queue.put("BOT zatrzymany!\n")
+                interloop_time -= 1
+    queue.put("BOT zatrzymany!\n")
 
-    global stop_event, queue, loop_thread
-    stop_event = Event()
-    queue = Queue()
-    loop_thread = Thread(target=loop, args=(stop_event, queue))
+def start_loop():
+    global loop_thread
+    stop_event.clear()
+    loop_thread = Thread(target=loop, args=(stop_event, global_queue))
     loop_thread.start()
-    root.after(100, process_queue)
+
+def start_loop_with_delay():
+    global delay_thread
+
+    def delayed_start():
+        autostart_delay = load_config().get('autostart_delay', 0)
+        while autostart_delay > 0 and not stop_event.is_set():
+            global_queue.put(f"Uruchomienie bota za {autostart_delay} sekund\n")
+            time.sleep(1)
+            autostart_delay -= 1
+        if not stop_event.is_set():
+            start_loop()
+        else:
+            global_queue.put("Autostart anulowany.\n")
+    
+    stop_event.clear()
+    delay_thread = Thread(target=delayed_start)
+    delay_thread.start()
 
 def process_queue():
     try:
         while True:
-            msg = queue.get_nowait()
+            msg = global_queue.get_nowait()
             terminal_text.config(state=tk.NORMAL)
             terminal_text.insert(tk.END, msg)
             terminal_text.config(state=tk.DISABLED)
@@ -71,40 +90,13 @@ def process_queue():
 
 def stop_loop():
     stop_event.set()
-    if loop_thread.is_alive():
+    if loop_thread is not None and loop_thread.is_alive():
         loop_thread.join()
-
-root = tk.Tk()
-root.title("BOT FOR COD")
-window_width = 1500
-window_height = 800
-open_window_on_specific_monitor(root, window_width, window_height, 0)
-
-frame = tk.Frame(root)
-frame.pack(fill='both', expand=True)
-
-settings = load_settings()
-widgets = create_widgets(frame, settings)
-
-start_button = ttk.Button(frame, text="Uruchom bota", command=start_loop)
-start_button.place(x=480, y=500)
-
-stop_button = ttk.Button(frame, text="Zatrzymaj Bota", command=stop_loop)
-stop_button.place(x=480, y=540)
-
-keyboard.add_hotkey('ctrl+z', stop_loop)
-
-inner_frame = ttk.Frame(root, height=200)
-inner_frame.pack_propagate(False)
-inner_frame.pack(padx=10, pady=10, fill=tk.BOTH)
-terminal_frame = ttk.LabelFrame(inner_frame, text="Terminal", padding=(5, 5))
-terminal_frame.pack(fill=tk.BOTH, expand=True)
-
-terminal_text = tk.Text(terminal_frame, wrap=tk.WORD, state=tk.DISABLED, height=10)
-terminal_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
-sys.stdout = RedirectedStdout(terminal_text, Queue())
+    if delay_thread is not None and delay_thread.is_alive():
+        delay_thread.join()
 
 def on_closing():
+    stop_loop()
     config_file = "config.txt"
     widgets_config_file = "widgets.json"
 
@@ -134,6 +126,41 @@ def on_closing():
 
     root.destroy()
 
+root = tk.Tk()
+root.title("BOT FOR COD")
+window_width = 1500
+window_height = 800
+open_window_on_specific_monitor(root, window_width, window_height, 0)
+
+frame = tk.Frame(root)
+frame.pack(fill='both', expand=True)
+
+settings = load_settings()
+widgets = create_widgets(frame, settings)
+
+start_button = ttk.Button(frame, text="Uruchom bota", command=start_loop)
+start_button.place(x=480, y=500)
+
+stop_button = ttk.Button(frame, text="Zatrzymaj Bota", command=stop_loop)
+stop_button.place(x=480, y=540)
+
+keyboard.add_hotkey('ctrl+z', stop_loop)
+
+inner_frame = ttk.Frame(root, height=200)
+inner_frame.pack_propagate(False)
+inner_frame.pack(padx=10, pady=10, fill=tk.BOTH)
+terminal_frame = ttk.LabelFrame(inner_frame, text="Terminal", padding=(5, 5))
+terminal_frame.pack(fill=tk.BOTH, expand=True)
+
+terminal_text = tk.Text(terminal_frame, wrap=tk.WORD, state=tk.DISABLED, height=10)
+terminal_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+sys.stdout = RedirectedStdout(terminal_text, global_queue)
 
 root.protocol("WM_DELETE_WINDOW", on_closing)
+
+root.after(100, process_queue)
+
+if load_config().get('autostart'):
+    start_loop_with_delay()
+
 root.mainloop()
