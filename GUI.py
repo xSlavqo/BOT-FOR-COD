@@ -17,6 +17,18 @@ delay_thread = None
 loop_thread = None
 
 def open_window_on_specific_monitor(root, width, height, monitor_index):
+    """
+    Opens a window on a specific monitor.
+    
+    Args:
+        root (tkinter.Tk): The root window.
+        width (int): The width of the window.
+        height (int): The height of the window.
+        monitor_index (int): The index of the monitor to open the window on.
+    
+    Returns:
+        None
+    """
     monitors = get_monitors()
     if monitor_index < len(monitors):
         monitor = monitors[monitor_index]

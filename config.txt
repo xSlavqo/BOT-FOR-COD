@@ -1,11 +1,11 @@
 max_gathers=5
-delay_time=30
+delay_time=5
 interloop_time=120
 reboot_time=1200
 rss_map=true
 mana=False
-hospital=true
-ally_gifts=true
+hospital=false
+ally_gifts=false
 gold=true
 wood=true
 stone=False
