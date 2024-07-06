@@ -70,6 +70,7 @@ def create_widgets(frame, settings, parent):
     widgets = WidgetGroup(frame, settings, widget_config, parent)
     return widgets
 
+
 def save_value(key, var):
     try:
         with open("config.txt", 'r', encoding='utf-8') as f:

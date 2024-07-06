@@ -139,7 +139,8 @@ frame = tk.Frame(root)
 frame.pack(fill='both', expand=True)
 
 settings = load_settings()
-widgets = create_widgets(frame, settings)
+widgets = create_widgets(frame, settings, root)
+
 
 keyboard.add_hotkey('ctrl+z', stop_loop)
 
