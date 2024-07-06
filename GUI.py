@@ -41,15 +41,18 @@ def loop(stop_event, queue):
         queue.put(f"Uruchomienie bota za {delay_time} sekund\n")
         time.sleep(1)
         delay_time -= 1
-    
+
     while not stop_event.is_set():
         error_occurred = execute_tasks(queue, stop_event)
-        if not error_occurred:
-            interloop_time = load_config().get('interloop_time', 0)
-            while interloop_time > 0 and not stop_event.is_set():
-                queue.put(f"uruchomienie pętli za {interloop_time} sekund\n")
-                time.sleep(1)
-                interloop_time -= 1
+        if error_occurred:
+            break  # Zatrzymujemy pętlę główną po wystąpieniu błędu innego niż timeout
+
+        interloop_time = load_config().get('interloop_time', 0)
+        while interloop_time > 0 and not stop_event.is_set():
+            queue.put(f"uruchomienie pętli za {interloop_time} sekund\n")
+            time.sleep(1)
+            interloop_time -= 1
+
     queue.put("BOT zatrzymany!\n")
 
 def start_loop():
@@ -137,12 +140,6 @@ frame.pack(fill='both', expand=True)
 
 settings = load_settings()
 widgets = create_widgets(frame, settings)
-
-start_button = ttk.Button(frame, text="Uruchom bota", command=start_loop)
-start_button.place(x=480, y=500)
-
-stop_button = ttk.Button(frame, text="Zatrzymaj Bota", command=stop_loop)
-stop_button.place(x=480, y=540)
 
 keyboard.add_hotkey('ctrl+z', stop_loop)
 

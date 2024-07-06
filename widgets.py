@@ -4,11 +4,13 @@ from tkinter import ttk
 import json
 
 class WidgetGroup:
-    def __init__(self, frame, settings, group_config):
+    def __init__(self, frame, settings, group_config, parent):
         self.frame = frame
         self.settings = settings
         self.vars = {}
+        self.parent = parent
         self.create_widgets(group_config)
+
 
     def create_widgets(self, group_config):
         for group_name, items in group_config.items():
@@ -39,6 +41,11 @@ class WidgetGroup:
                     var.trace_add("write", lambda *args, key=item['key'], var=var: save_value(key, var))
                     widget.place(x=entry_x, y=entry_y)
                     self.vars[item['key']] = (widget, var)
+                elif item['type'] == 'Button':
+                    command = getattr(self.parent, item['command'], None)
+                    widget = ttk.Button(self.frame, text=item['text'], command=command)
+                    widget.place(x=item['x'], y=item['y'])
+                    self.vars[item['key']] = widget
 
         self.update_resource_buttons()
         self.vars['rss_map'][1].trace_add('write', self.update_resource_buttons)
@@ -53,14 +60,14 @@ class WidgetGroup:
                 widget.config(state='disabled')
                 var.set(False)
 
-def create_widgets(frame, settings):
+def create_widgets(frame, settings, parent):
     script_dir = os.path.dirname(__file__)
     abs_file_path = os.path.join(script_dir, 'widgets.json')
-    
+
     with open(abs_file_path, 'r', encoding='utf-8') as f:
         widget_config = json.load(f)
 
-    widgets = WidgetGroup(frame, settings, widget_config)
+    widgets = WidgetGroup(frame, settings, widget_config, parent)
     return widgets
 
 def save_value(key, var):

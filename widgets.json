@@ -25,6 +25,8 @@
         {"type": "Entry", "text": "Czas między pętlami", "key": "interloop_time", "x": 50, "y": 300},
         {"type": "Entry", "text": "Czas restartu po błędzie", "key": "reboot_time", "x": 50, "y": 330},
         {"type": "Checkbutton", "text": "Autostart", "key": "autostart", "x": 50, "y": 360},
-        {"type": "Entry", "text": "Opóźnienie autostartu", "key": "autostart_delay", "x": 50, "y": 390}
-    ]
+        {"type": "Entry", "text": "Opóźnienie autostartu", "key": "autostart_delay", "x": 50, "y": 390},
+        {"type": "Button", "text": "Uruchom bota", "key": "start_button", "x": 480, "y": 500, "command": "start_loop"},
+        {"type": "Button", "text": "Zatrzymaj Bota", "key": "stop_button", "x": 480, "y": 540, "command": "stop_loop"}
+        ]
 }
