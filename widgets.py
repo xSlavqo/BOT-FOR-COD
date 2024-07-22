@@ -11,7 +11,6 @@ class WidgetGroup:
         self.parent = parent
         self.create_widgets(group_config)
 
-
     def create_widgets(self, group_config):
         for group_name, items in group_config.items():
             for item in items:
@@ -47,14 +46,20 @@ class WidgetGroup:
                     widget.place(x=item['x'], y=item['y'])
                     self.vars[item['key']] = widget
 
-        self.update_resource_buttons()
-        self.vars['rss_map'][1].trace_add('write', self.update_resource_buttons)
+        # Inicjalizacja pierwszej grupy przycisków
+        self.update_buttons('rss_map', ['gold', 'wood', 'stone', 'mana'])
+        self.vars['rss_map'][1].trace_add('write', lambda *args: self.update_buttons('rss_map', ['gold', 'wood', 'stone', 'mana']))
 
-    def update_resource_buttons(self, *args):
-        rss_map_value = self.vars['rss_map'][1].get()
-        for key in ['gold', 'wood', 'stone', 'mana']:
-            widget, var = self.vars[key]
-            if rss_map_value:
+        # Inicjalizacja drugiej grupy przycisków
+        self.update_buttons('train', ['vest', 'arch', 'inf', 'cav'])
+        self.vars['train'][1].trace_add('write', lambda *args: self.update_buttons('train', ['vest', 'arch', 'inf', 'cav']))
+
+    def update_buttons(self, key, button_keys, *args):
+        # Pobierz wartość zmiennej śledzącej
+        button_type = self.vars[key][1].get()
+        for button_key in button_keys:
+            widget, var = self.vars[button_key]
+            if button_type:
                 widget.config(state='normal')
             else:
                 widget.config(state='disabled')
@@ -69,7 +74,6 @@ def create_widgets(frame, settings, parent):
 
     widgets = WidgetGroup(frame, settings, widget_config, parent)
     return widgets
-
 
 def save_value(key, var):
     try:

@@ -11,7 +11,12 @@
     "Miasto": [
         {"type": "Checkbutton", "text": "Leczenie jednostek", "key": "hospital", "x": 450, "y": 50},
         {"type": "Checkbutton", "text": "Naprawa muru", "key": "wall_repair", "x": 450, "y": 80},
-        {"type": "Checkbutton", "text": "Dialogi bohaterów", "key": "dialogues", "x": 450, "y": 110}
+        {"type": "Checkbutton", "text": "Dialogi bohaterów", "key": "dialogues", "x": 450, "y": 110},
+        {"type": "Checkbutton", "text": "Szkolenie jednostek", "key": "train", "x": 450, "y": 200},
+        {"type": "Checkbutton", "text": "Westalki", "key": "vest", "x": 450, "y": 230},
+        {"type": "Checkbutton", "text": "Łucznicy", "key": "arch", "x": 450, "y": 260},
+        {"type": "Checkbutton", "text": "Piechota", "key": "inf", "x": 450, "y": 290},
+        {"type": "Checkbutton", "text": "Kawaleria", "key": "cav", "x": 450, "y": 320}
         
     ],
 
