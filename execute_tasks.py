@@ -3,8 +3,9 @@ from func_timeout import func_timeout, FunctionTimedOut
 from tasks.rss_map import rss_map
 from tasks.alliance import ally_help, ally_gifts
 from tasks.hospital import hospital
+from tasks.train import train_units
 from tasks.windows_management import cod_run, cod_restart, tv_close
-from tools.functions import load_settings
+from tools.functions import load_settings, load_config
 
 def task_with_optional_timeout(task_func, timeout=None):
     def wrapper():
@@ -27,13 +28,14 @@ task_groups = {
         "rss_map": (rss_map, 120, 0, False)
     },
     "MIASTO": {
-        "hospital": (hospital, 30, 1800, False)
+        "hospital": (hospital, 30, 1800, False),
+        "train": (train_units, 200, 600, False),
     },
     "MAPA LUB MIASTO": {
         "ally_help": (ally_help, 10, 0, False)
     },
     "SOJUSZ": {
-        "ally_gifts": (ally_gifts, 300, 1800, False)
+        "ally_gifts": (ally_gifts, 1, 1800, False)
     }
 }
 
@@ -52,35 +54,40 @@ def can_execute_task(task_name, interval, current_time):
 def update_last_execution_time(task_name, current_time):
     last_execution_time[task_name] = current_time
 
+# Funkcja czekająca na ponowne uruchomienie
+def wait_for_reboot(reboot_time, queue, stop_event):
+    while reboot_time > 0 and not stop_event.is_set():
+        queue.put(f"Restart po błędzie za {reboot_time} sekund\n")
+        time.sleep(1)
+        reboot_time -= 1
+
 # Główna funkcja wykonująca zadania
 def execute_tasks(queue, stop_event):
     config = load_settings()
+    reboot_time = load_config().get('reboot_time', 0)  # Pobieranie wartości reboot_time z konfiguracji
     current_time = time.time()
 
     for group_name, tasks in task_groups.items():
         for task_name, (task_func, interval, critical) in tasks.items():
             task_config = config.get(task_name)
 
+            # Wykonanie zadania i obsługa błędów
             if task_config is None and critical:
                 error = execute_task(task_name, task_func, interval, current_time, critical, queue, stop_event)
-                if error == "timeout":
-                    continue  # Kontynuujemy pętlę w przypadku przekroczenia limitu czasu
-                elif error:
-                    return True  # Zwracamy True, sygnalizując wystąpienie błędu innego niż timeout
+                if error:  # Niezależnie od typu błędu, przechodzimy do reboot
+                    wait_for_reboot(reboot_time, queue, stop_event)  # Oczekiwanie na reboot
+                    return True  # Kończymy wykonywanie zadań
             elif task_config and task_config.lower() == "true":
                 error = execute_task(task_name, task_func, interval, current_time, critical, queue, stop_event)
-                if error == "timeout":
-                    continue  # Kontynuujemy pętlę w przypadku przekroczenia limitu czasu
-                elif error:
-                    return True  # Zwracamy True, sygnalizując wystąpienie błędu innego niż timeout
+                if error:  # Niezależnie od typu błędu, przechodzimy do reboot
+                    wait_for_reboot(reboot_time, queue, stop_event)  # Oczekiwanie na reboot
+                    return True  # Kończymy wykonywanie zadań
             elif task_config and task_config.lower() == "false" and critical:
                 pass
             else:
                 pass
 
     return False  # Zwracamy False, jeśli nie wystąpił żaden błąd
-
-
 
 def execute_task(task_name, task_func, interval, current_time, critical, queue, stop_event):
     if not can_execute_task(task_name, interval, current_time):

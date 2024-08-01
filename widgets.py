@@ -45,17 +45,22 @@ class WidgetGroup:
                     widget = ttk.Button(self.frame, text=item['text'], command=command)
                     widget.place(x=item['x'], y=item['y'])
                     self.vars[item['key']] = widget
+                elif item['type'] == 'Combobox':
+                    var = initialize_variable(self.settings, item['key'], tk.StringVar)
+                    widget = ttk.Combobox(self.frame, textvariable=var, values=item['values'], width=item.get('width', 10))
+                    var.trace_add("write", lambda *args, key=item['key'], var=var: save_value(key, var))
+                    widget.place(x=item['x'], y=item['y'])
+                    self.vars[item['key']] = (widget, var)
 
-        # Inicjalizacja pierwszej grupy przycisków
+
+
         self.update_buttons('rss_map', ['gold', 'wood', 'stone', 'mana'])
         self.vars['rss_map'][1].trace_add('write', lambda *args: self.update_buttons('rss_map', ['gold', 'wood', 'stone', 'mana']))
 
-        # Inicjalizacja drugiej grupy przycisków
-        self.update_buttons('train', ['vest', 'arch', 'inf', 'cav'])
-        self.vars['train'][1].trace_add('write', lambda *args: self.update_buttons('train', ['vest', 'arch', 'inf', 'cav']))
+        self.update_buttons('train', ['vest', 'arch', 'inf', 'cav', 'vest_tier', 'arch_tier', 'inf_tier', 'cav_tier'])
+        self.vars['train'][1].trace_add('write', lambda *args: self.update_buttons('train', ['vest', 'arch', 'inf', 'cav', 'vest_tier', 'arch_tier', 'inf_tier', 'cav_tier']))
 
     def update_buttons(self, key, button_keys, *args):
-        # Pobierz wartość zmiennej śledzącej
         button_type = self.vars[key][1].get()
         for button_key in button_keys:
             widget, var = self.vars[button_key]
@@ -63,7 +68,10 @@ class WidgetGroup:
                 widget.config(state='normal')
             else:
                 widget.config(state='disabled')
-                var.set(False)
+                if isinstance(var, tk.BooleanVar):
+                    var.set(False)
+                elif isinstance(var, tk.StringVar):
+                    var.set('')
 
 def create_widgets(frame, settings, parent):
     script_dir = os.path.dirname(__file__)
