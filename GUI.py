@@ -81,16 +81,23 @@ class BotGUI:
 
         while not self.stop_event.is_set():
             error_occurred = execute_tasks(self.global_queue, self.stop_event)
+            
             if error_occurred:
-                break  # Zatrzymujemy pętlę główną po wystąpieniu błędu
+                if error_occurred == "timeout":
+                    self.global_queue.put("Wystąpił błąd typu 'timeout'. Restartowanie...\n")
+                    continue
+                elif error_occurred == "general_error":
+                    self.global_queue.put("Wystąpił błąd typu 'general_error'. Zatrzymanie pętli.\n")
+                    break
 
             interloop_time = load_config().get('interloop_time', 0)
             while interloop_time > 0 and not self.stop_event.is_set():
-                self.global_queue.put(f"uruchomienie pętli za {interloop_time} sekund\n")
+                self.global_queue.put(f"Uruchomienie pętli za {interloop_time} sekund\n")
                 time.sleep(1)
                 interloop_time -= 1
 
         self.global_queue.put("BOT zatrzymany!\n")
+
 
     # Funkcja do uruchomienia pętli głównej
     def start_loop(self):

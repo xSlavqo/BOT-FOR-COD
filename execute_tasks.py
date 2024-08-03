@@ -35,7 +35,7 @@ task_groups = {
         "ally_help": (ally_help, 10, 0, False)
     },
     "SOJUSZ": {
-        "ally_gifts": (ally_gifts, 1, 1800, False)
+        "ally_gifts": (ally_gifts, 1000, 1800, False)
     }
 }
 
@@ -61,7 +61,6 @@ def wait_for_reboot(reboot_time, queue, stop_event):
         time.sleep(1)
         reboot_time -= 1
 
-# Główna funkcja wykonująca zadania
 def execute_tasks(queue, stop_event):
     config = load_settings()
     reboot_time = load_config().get('reboot_time', 0)  # Pobieranie wartości reboot_time z konfiguracji
@@ -76,18 +75,19 @@ def execute_tasks(queue, stop_event):
                 error = execute_task(task_name, task_func, interval, current_time, critical, queue, stop_event)
                 if error:  # Niezależnie od typu błędu, przechodzimy do reboot
                     wait_for_reboot(reboot_time, queue, stop_event)  # Oczekiwanie na reboot
-                    return True  # Kończymy wykonywanie zadań
+                    return error  # Zwracamy typ błędu ("timeout" lub "general_error")
             elif task_config and task_config.lower() == "true":
                 error = execute_task(task_name, task_func, interval, current_time, critical, queue, stop_event)
                 if error:  # Niezależnie od typu błędu, przechodzimy do reboot
                     wait_for_reboot(reboot_time, queue, stop_event)  # Oczekiwanie na reboot
-                    return True  # Kończymy wykonywanie zadań
+                    return error  # Zwracamy typ błędu ("timeout" lub "general_error")
             elif task_config and task_config.lower() == "false" and critical:
                 pass
             else:
                 pass
 
     return False  # Zwracamy False, jeśli nie wystąpił żaden błąd
+
 
 def execute_task(task_name, task_func, interval, current_time, critical, queue, stop_event):
     if not can_execute_task(task_name, interval, current_time):
@@ -104,4 +104,5 @@ def execute_task(task_name, task_func, interval, current_time, critical, queue, 
         return "timeout"  # Zwracamy specjalną wartość "timeout"
     except Exception as e:
         queue.put(f"Błąd podczas wykonywania zadania {task_name}: {e}\n")
-        return e  # Zwracamy obiekt wyjątku
+        cod_restart(queue, stop_event)
+        return "general_error"  # Zwracamy "general_error" dla wszystkich innych błędów

@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from tools.locate import *
 from tools.text import *
 from tools.functions import save_data, open_data, load_config
+from tools.find import find_and_click
 from tasks.location import *
 
 
@@ -33,7 +34,7 @@ def train_units():
 def train_unit(unit_type):
     city()
     time.sleep(1)
-    if not locate_and_click(f"pngs/units/{unit_type}/place.png", 0.97, 0, 0, 10):
+    if not find_and_click(f"pngs/units/{unit_type}/place.png", 0.8, 5):
         map()
         return train_unit(unit_type)
     time.sleep(1)
@@ -62,10 +63,10 @@ coordinates = {
 
 def start_train(unit_type):
     config = load_config()
-    locate_and_click(f"pngs/units/{unit_type}/train.png", 0.95, 0, 0, 10)
-    time.sleep(1)
-    value = config.get(unit_type + "_tier")
-    if value:
-        pyautogui.click(coordinates.get(value))
+    if locate_and_click(f"pngs/units/{unit_type}/train.png", 0.95, 0, 0, 10):
         time.sleep(1)
-        locate_and_click("pngs/train_start.png", 0.99)
+        value = config.get(unit_type + "_tier")
+        if value:
+            pyautogui.click(coordinates.get(value))
+            time.sleep(1)
+            locate_and_click("pngs/train_start.png", 0.99)
