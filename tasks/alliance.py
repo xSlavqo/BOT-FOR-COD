@@ -4,8 +4,8 @@ import pyautogui
 import time
 
 def ally_help():
-    if main_screen():
-        locate_and_click("pngs/ally_help.png", 0.99) 
+    main_screen()
+    locate_and_click("pngs/ally_help.png", 0.99) 
 
 def ally_menu():
     if not locate("pngs/ally_menu.png", 0.99):

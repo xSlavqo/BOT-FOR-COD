@@ -29,7 +29,7 @@ task_groups = {
     },
     "MIASTO": {
         "hospital": (hospital, 30, 1800, False),
-        "train": (train_units, 200, 600, False),
+        "train": (train_units, 200, 0, False),
     },
     "MAPA LUB MIASTO": {
         "ally_help": (ally_help, 10, 0, False)
@@ -104,5 +104,4 @@ def execute_task(task_name, task_func, interval, current_time, critical, queue, 
         return "timeout"  # Zwracamy specjalną wartość "timeout"
     except Exception as e:
         queue.put(f"Błąd podczas wykonywania zadania {task_name}: {e}\n")
-        cod_restart(queue, stop_event)
         return "general_error"  # Zwracamy "general_error" dla wszystkich innych błędów

@@ -36,10 +36,14 @@ def train_unit(unit_type):
     time.sleep(1)
     if not find_and_click(f"pngs/units/{unit_type}/place.png", 0.8, 5):
         map()
-        return train_unit(unit_type)
+        city()
+        if not find_and_click(f"pngs/units/{unit_type}/place.png", 0.8, 5): 
+            return
     time.sleep(1)
-    if locate_and_click("pngs/units/speed.png", 0.99, 0, 0, 10):
+    if not locate(f"pngs/units/{unit_type}/train.png", 0.95):
         time.sleep(1)
+        return train_unit(unit_type)
+    if locate_and_click("pngs/units/speed.png", 0.99):
         train_end_time(unit_type)
         return
     start_train(unit_type)
