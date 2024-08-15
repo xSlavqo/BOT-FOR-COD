@@ -16,7 +16,5 @@ def text(region):
 
 
 if __name__ == "__main__":
-    aha = text((1253, 373, 261, 35))
-    print (aha)
-    aha = text((536, 484, 251, 34))
+    aha = text((1, 1, 1919, 850))
     print (aha)

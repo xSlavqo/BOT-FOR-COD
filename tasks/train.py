@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from tools.locate import *
 from tools.text import *
 from tools.functions import save_data, open_data, load_config
-from tools.find import find_and_click
+from tools.find import *
 from tasks.location import *
 
 
@@ -34,16 +34,10 @@ def train_units():
 def train_unit(unit_type):
     city()
     time.sleep(1)
-    if not find_and_click(f"pngs/units/{unit_type}/place.png", 0.8, 5):
-        map()
-        city()
-        if not find_and_click(f"pngs/units/{unit_type}/place.png", 0.8, 5): 
-            return
+    find_and_click(f"pngs/units/{unit_type}", 0.3)
     time.sleep(1)
-    if not locate(f"pngs/units/{unit_type}/train.png", 0.95):
-        time.sleep(1)
-        return train_unit(unit_type)
     if locate_and_click("pngs/units/speed.png", 0.99):
+        time.sleep(1)
         train_end_time(unit_type)
         return
     start_train(unit_type)
@@ -67,7 +61,7 @@ coordinates = {
 
 def start_train(unit_type):
     config = load_config()
-    if locate_and_click(f"pngs/units/{unit_type}/train.png", 0.95, 0, 0, 10):
+    if find_and_click("pngs/units/train", 0.5):
         time.sleep(1)
         value = config.get(unit_type + "_tier")
         if value:
