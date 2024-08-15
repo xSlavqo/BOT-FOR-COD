@@ -1,7 +1,5 @@
-import os
 import tkinter as tk
 from tkinter import ttk
-import json
 
 class WidgetGroup:
     def __init__(self, frame, settings, group_config, parent):
@@ -42,17 +40,19 @@ class WidgetGroup:
                     self.vars[item['key']] = (widget, var)
                 elif item['type'] == 'Button':
                     command = getattr(self.parent, item['command'], None)
-                    widget = ttk.Button(self.frame, text=item['text'], command=command)
+                    if command:
+                        widget = ttk.Button(self.frame, text=item['text'], command=command)
+                    else:
+                        widget = ttk.Button(self.frame, text=item['text'])
                     widget.place(x=item['x'], y=item['y'])
                     self.vars[item['key']] = widget
+
                 elif item['type'] == 'Combobox':
                     var = initialize_variable(self.settings, item['key'], tk.StringVar)
                     widget = ttk.Combobox(self.frame, textvariable=var, values=item['values'], width=item.get('width', 10))
                     var.trace_add("write", lambda *args, key=item['key'], var=var: save_value(key, var))
                     widget.place(x=item['x'], y=item['y'])
                     self.vars[item['key']] = (widget, var)
-
-
 
         self.update_buttons('rss_map', ['gold', 'wood', 'stone', 'mana'])
         self.vars['rss_map'][1].trace_add('write', lambda *args: self.update_buttons('rss_map', ['gold', 'wood', 'stone', 'mana']))
@@ -73,12 +73,47 @@ class WidgetGroup:
                 elif isinstance(var, tk.StringVar):
                     var.set('')
 
-def create_widgets(frame, settings, parent):
-    script_dir = os.path.dirname(__file__)
-    abs_file_path = os.path.join(script_dir, 'widgets.json')
+    
 
-    with open(abs_file_path, 'r', encoding='utf-8') as f:
-        widget_config = json.load(f)
+def create_widgets(frame, settings, parent):
+    widget_config = {
+        "Mapa": [
+            {"type": "Checkbutton", "text": "Zbieraj surowce", "key": "rss_map", "x": 50, "y": 50},
+            {"type": "Checkbutton", "text": "Złoto", "key": "gold", "x": 50, "y": 80},
+            {"type": "Checkbutton", "text": "Drewno", "key": "wood", "x": 50, "y": 110},
+            {"type": "Checkbutton", "text": "Kamień", "key": "stone", "x": 50, "y": 140},
+            {"type": "Checkbutton", "text": "Mana", "key": "mana", "x": 50, "y": 170},
+            {"type": "Entry", "text": "Maksymalna ilość legionów", "key": "max_gathers", "x": 50, "y": 200}
+        ],
+        "Miasto": [
+            {"type": "Checkbutton", "text": "Leczenie jednostek", "key": "hospital", "x": 450, "y": 50},
+            {"type": "Checkbutton", "text": "Naprawa muru", "key": "wall_repair", "x": 450, "y": 80},
+            {"type": "Checkbutton", "text": "Dialogi bohaterów", "key": "dialogues", "x": 450, "y": 110},
+            {"type": "Checkbutton", "text": "Szkolenie jednostek", "key": "train", "x": 450, "y": 200},
+            {"type": "Checkbutton", "text": "Westalki", "key": "vest", "x": 450, "y": 230},
+            {"type": "Combobox", "text": "", "key": "vest_tier", "values": ["T1", "T2", "T3","T4","T5"], "x": 580, "y": 230, "width": 5},
+            {"type": "Checkbutton", "text": "Łucznicy", "key": "arch", "x": 450, "y": 260},
+            {"type": "Combobox", "text": "", "key": "arch_tier", "values": ["T1", "T2", "T3","T4","T5"], "x": 580, "y": 260, "width": 5},
+            {"type": "Checkbutton", "text": "Piechota", "key": "inf", "x": 450, "y": 290},
+            {"type": "Combobox", "text": "", "key": "inf_tier", "values": ["T1", "T2", "T3","T4","T5"], "x": 580, "y": 290, "width": 5},
+            {"type": "Checkbutton", "text": "Kawaleria", "key": "cav", "x": 450, "y": 320},
+            {"type": "Combobox", "text": "", "key": "cav_tier", "values": ["T1", "T2", "T3","T4","T5"], "x": 580, "y": 320, "width": 5}
+        ],
+        "Sojusz": [
+            {"type": "Checkbutton", "text": "Pomoc sojuszu", "key": "ally_help", "x": 850, "y": 50},
+            {"type": "Checkbutton", "text": "Odbierz prezenty sojuszu", "key": "ally_gifts", "x": 850, "y": 80}
+        ],
+        "Overall": [
+            {"type": "Entry", "text": "Opóźnienie uruchomienia", "key": "delay_time", "x": 50, "y": 270},
+            {"type": "Entry", "text": "Czas między pętlami", "key": "interloop_time", "x": 50, "y": 300},
+            {"type": "Entry", "text": "Czas restartu po błędzie", "key": "reboot_time", "x": 50, "y": 330},
+            {"type": "Checkbutton", "text": "Autostart", "key": "autostart", "x": 50, "y": 360},
+            {"type": "Entry", "text": "Opóźnienie autostartu", "key": "autostart_delay", "x": 50, "y": 390},
+            {"type": "Button", "text": "Uruchom bota", "key": "start_button", "x": 1250, "y": 450, "command": "start_loop"},
+            {"type": "Button", "text": "Zatrzymaj Bota", "key": "stop_button", "x": 1250, "y": 480, "command": "stop_loop"},
+            {"type": "Button", "text": "Konfiguracja położenia budynków", "key": "execute_action1", "x": 1250, "y": 510, "command": "execute_action1"}
+        ]
+    }
 
     widgets = WidgetGroup(frame, settings, widget_config, parent)
     return widgets

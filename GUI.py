@@ -11,6 +11,8 @@ from tools.functions import load_config, load_settings
 from execute_tasks import execute_tasks
 from widgets import create_widgets
 
+from tools.buildings_config import buildings_config
+
 # Klasa do przekierowywania stdout do widżetu tekstowego
 class TextRedirector:
     def __init__(self, widget, queue):
@@ -98,7 +100,6 @@ class BotGUI:
 
         self.global_queue.put("BOT zatrzymany!\n")
 
-
     # Funkcja do uruchomienia pętli głównej
     def start_loop(self):
         self.stop_event.clear()
@@ -142,6 +143,9 @@ class BotGUI:
             self.loop_thread.join()
         if self.delay_thread is not None and self.delay_thread.is_alive():
             self.delay_thread.join()
+
+    def execute_action1(self):
+        buildings_config()
 
     # Funkcja do obsługi zamknięcia okna
     def on_closing(self):

@@ -1,8 +1,8 @@
 rss_map=False
-gold=False
-wood=False
-stone=False
-mana=False
+gold=false
+wood=false
+stone=false
+mana=false
 max_gathers=5
 hospital=False
 wall_repair=False
