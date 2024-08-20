@@ -1,5 +1,6 @@
 import time
 import re
+import pyautogui
 from datetime import datetime, timedelta
 from tools.locate import *
 from tools.text import *
@@ -31,16 +32,31 @@ def train_units():
                 train_unit(unit_type)
 
  
+
+
 def train_unit(unit_type):
+    coordinates = load_building_coordinates()
+    if unit_type not in coordinates:
+        print(f"Brak zapisanych współrzędnych dla {unit_type}.")
+        return
+    
     city()
     time.sleep(1)
-    find_and_click(f"pngs/units/{unit_type}", 0.3)
+    
+    # Kliknięcie na odpowiednie współrzędne budynku za pomocą mouseDown i mouseUp
+    x, y = coordinates[unit_type]
+    pyautogui.mouseDown(x, y)
+    time.sleep(0.1)
+    pyautogui.mouseUp(x, y)
     time.sleep(1)
-    if locate_and_click("pngs/units/speed.png", 0.99):
+    
+    if locate_and_click("pngs/units/speed.png", 0.98):
         time.sleep(1)
         train_end_time(unit_type)
         return
+    
     start_train(unit_type)
+
   
 def train_end_time(unit_type):
     remaining_time = text((888, 314, 247, 25))
@@ -68,3 +84,19 @@ def start_train(unit_type):
             pyautogui.click(coordinates.get(value))
             time.sleep(1)
             locate_and_click("pngs/train_start.png", 0.99)
+
+
+def load_building_coordinates():
+    coordinates = {}
+    desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+    filename = os.path.join(desktop_path, "buildings.txt")
+    
+    with open(filename, "r", encoding="utf-8") as file:
+        lines = file.readlines()
+        for i in range(0, len(lines), 2):
+            unit = lines[i].split('_')[0]
+            x = int(lines[i].split('=')[1].strip())
+            y = int(lines[i+1].split('=')[1].strip())
+            coordinates[unit] = (x, y)
+    
+    return coordinates

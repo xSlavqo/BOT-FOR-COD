@@ -5,7 +5,8 @@ import time
 
 def ally_help():
     main_screen()
-    locate_and_click("pngs/ally_help.png", 0.99) 
+    if locate_and_click("pngs/ally_help.png", 0.99):
+        return 
 
 def ally_menu():
     if not locate("pngs/ally_menu.png", 0.99):

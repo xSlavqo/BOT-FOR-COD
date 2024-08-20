@@ -74,6 +74,6 @@ def locate_and_click(path, threshold, x_offset=0, y_offset=0, max_search_time=2)
                     click_with_offset(center)
                     return True
 
-        time.sleep(0.01)  # 100 razy na sekundę
+        time.sleep(0.1)  # 100 razy na sekundę
 
     return False

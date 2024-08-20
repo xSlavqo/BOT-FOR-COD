@@ -9,7 +9,7 @@ def buildings_config(window_title="Call of Dragons"):
     # Ustawienia
     desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
     filename = os.path.join(desktop_path, "buildings.txt")
-    buildings = ["vest", "arch", "inf", "cav"]
+    buildings = ["center", "buildings", "labo", "vest", "arch", "inf", "cav"]
     points = []
     building_index = 0
     scale_factor = 0.8  # Skalowanie do 80%
