@@ -18,7 +18,6 @@ class BuildQueue:
         self.time_end = None
 
     def check_if_unlocked(self):
-        # Sprawdza, czy obraz "2.png" nie jest obecny w określonym regionie
         self.is_unlocked = not locate_in_region("2.png", 0.95, self.coordinates)
         return self.is_unlocked
     
@@ -28,10 +27,10 @@ class BuildQueue:
                 return True
             else:
                 self.time_end = None
-        else:
-            if not locate_in_region("pngs/build3.png", 0.95, self.coordinates):
-                return True
-        return False
+        time.sleep(1)
+        if locate_in_region("pngs/build3.png", 0.99, self.coordinates):
+            return False
+        return True
     
     def set_time_end(self, time_end):
         self.time_end = time_end
@@ -46,8 +45,6 @@ def enter_building():
         city()
         time.sleep(1)
         buildings = coordinates.get("buildings")
-        pyautogui.mouseDown(buildings)
-        pyautogui.mouseUp(buildings)
         pyautogui.mouseDown(buildings)
         pyautogui.mouseUp(buildings)
         if locate_and_click("pngs/build2.png", 0.97, 2):
@@ -72,7 +69,7 @@ def load_building_coordinates():
     return coordinates
 
 
-def auto_build(queue):
+def start_build(queue):
     locate_and_click("pngs/build3.png", 0.97, 2)
     locate_and_click("pngs/build4.png", 0.97, 2)
     time.sleep(1)
@@ -86,10 +83,6 @@ def auto_build(queue):
     locate_and_click("pngs/build5.png", 0.97, 2)
     locate_and_click("pngs/ask_help.png", 0.95, 3)
 
-def create_queue(id, cords):
-    queue = BuildQueue(id, cords)
-    return queue
-
 def check_and_control_queue(queue):
     if queue.time_end:    
         if queue.time_end > datetime.now():
@@ -98,22 +91,21 @@ def check_and_control_queue(queue):
     time.sleep(1)
     if queue.check_if_unlocked():
         if queue.check_if_busy() == False:
-            print(f"Queue {queue.id} is not busy. Starting auto_build.")
+            print(f"Queue {queue.id} is not busy. Starting start_build.")
             time.sleep(3)
-            auto_build(queue)
+            start_build(queue)
             
         else:
             print(f"Queue {queue.id} is busy.")
     else:
         print(f"Queue {queue.id} is locked.")
 
-def main():
+def auto_build():
     queue1 = None
     queue2 = None
     if not queue1:
             queue1 = BuildQueue(1, (380, 485, 1177, 191))
     if not queue2:
         queue2 = BuildQueue(2, (383, 690, 1175, 172))
-    print(queue1.time_end)
     check_and_control_queue(queue1)
     check_and_control_queue(queue2)

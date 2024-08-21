@@ -91,5 +91,3 @@ def load_building_coordinates():
             coordinates[unit] = (x, y)
     
     return coordinates
-
-check_autobuild()

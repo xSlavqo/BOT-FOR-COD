@@ -55,13 +55,12 @@ class BotGUI:
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.root.after(100, self.process_queue)
         self.stop_event = Event()
-        self.delay_thread = None
         self.loop_thread = None
         keyboard.add_hotkey('ctrl+z', self.stop_loop)
 
-        # Uruchomienie pętli głównej z opóźnieniem lub bez opóźnienia
+        # Uruchomienie pętli głównej, jeśli autostart jest włączony
         if load_config().get('autostart'):
-            self.start_loop_with_delay()
+            self.start_loop()
         self.root.mainloop()
 
     # Funkcja pomocnicza do otwierania okna na określonym monitorze
@@ -75,22 +74,11 @@ class BotGUI:
 
     # Główna pętla programu
     def loop(self):
-        delay_time = load_config().get('delay_time', 0)
-        while delay_time > 0 and not self.stop_event.is_set():
-            self.global_queue.put(f"Uruchomienie bota za {delay_time} sekund\n")
-            time.sleep(1)
-            delay_time -= 1
-
         while not self.stop_event.is_set():
             error_occurred = execute_tasks(self.global_queue, self.stop_event)
             
             if error_occurred:
-                if error_occurred == "timeout":
-                    self.global_queue.put("Wystąpił błąd typu 'timeout'. Restartowanie...\n")
-                    continue
-                elif error_occurred == "general_error":
-                    self.global_queue.put("Wystąpił błąd typu 'general_error'. Zatrzymanie pętli.\n")
-                    break
+                break
 
             interloop_time = load_config().get('interloop_time', 0)
             while interloop_time > 0 and not self.stop_event.is_set():
@@ -100,28 +88,23 @@ class BotGUI:
 
         self.global_queue.put("BOT zatrzymany!\n")
 
-    # Funkcja do uruchomienia pętli głównej
-    def start_loop(self):
-        self.stop_event.clear()
-        self.loop_thread = Thread(target=self.loop)
-        self.loop_thread.start()
-
     # Funkcja do uruchomienia pętli głównej z opóźnieniem
-    def start_loop_with_delay(self):
-        def delayed_start():
-            autostart_delay = load_config().get('autostart_delay', 0)
-            while autostart_delay > 0 and not self.stop_event.is_set():
-                self.global_queue.put(f"Uruchomienie bota za {autostart_delay} sekund\n")
+    def start_loop(self):
+        delay_time = load_config().get('delay_time', 0)
+        
+        def delayed_start(delay):
+            while delay > 0 and not self.stop_event.is_set():
+                self.global_queue.put(f"Uruchomienie bota za {delay} sekund\n")
                 time.sleep(1)
-                autostart_delay -= 1
+                delay -= 1
+            
             if not self.stop_event.is_set():
-                self.start_loop()
-            else:
-                self.global_queue.put("Autostart anulowany.\n")
+                self.loop_thread = Thread(target=self.loop)
+                self.loop_thread.start()
 
         self.stop_event.clear()
-        self.delay_thread = Thread(target=delayed_start)
-        self.delay_thread.start()
+        self.loop_thread = Thread(target=delayed_start, args=(delay_time,))
+        self.loop_thread.start()
 
     # Funkcja do obsługi kolejki komunikatów
     def process_queue(self):
@@ -141,8 +124,6 @@ class BotGUI:
         self.stop_event.set()
         if self.loop_thread is not None and self.loop_thread.is_alive():
             self.loop_thread.join()
-        if self.delay_thread is not None and self.delay_thread.is_alive():
-            self.delay_thread.join()
 
     def execute_action1(self):
         buildings_config()

@@ -87,7 +87,7 @@ def create_widgets(frame, settings, parent):
         ],
         "Miasto": [
             {"type": "Checkbutton", "text": "Leczenie jednostek", "key": "hospital", "x": 450, "y": 50},
-            {"type": "Checkbutton", "text": "Naprawa muru", "key": "wall_repair", "x": 450, "y": 80},
+            {"type": "Checkbutton", "text": "Automatyczna budowa", "key": "auto_build", "x": 450, "y": 80},
             {"type": "Checkbutton", "text": "Dialogi bohaterów", "key": "dialogues", "x": 450, "y": 110},
             {"type": "Checkbutton", "text": "Szkolenie jednostek", "key": "train", "x": 450, "y": 200},
             {"type": "Checkbutton", "text": "Westalki", "key": "vest", "x": 450, "y": 230},
