@@ -6,6 +6,7 @@ from tasks.hospital import hospital
 from tasks.train import train_units
 from tasks.windows_management import cod_run, cod_restart, tv_close
 from tools.functions import load_settings, load_config
+from test3 import main
 
 def task_with_optional_timeout(task_func, timeout=None):
     def wrapper():
@@ -30,6 +31,7 @@ task_groups = {
     "MIASTO": {
         "hospital": (hospital, 30, 1800, False),
         "train": (train_units, 200, 0, False),
+        "main": (main, 200, 0, True)
     },
     "MAPA LUB MIASTO": {
         "ally_help": (ally_help, 10, 0, False)

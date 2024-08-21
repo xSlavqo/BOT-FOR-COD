@@ -38,6 +38,31 @@ def locate(path, threshold, max_search_time=2):
 
     return False
 
+def locate_in_region(path, threshold, region, max_search_time=2):
+    end_time = time.time() + max_search_time
+    while time.time() < end_time:
+        # Zrzut ekranu dla określonego regionu
+        img = pyautogui.screenshot(region=region)
+
+        img = np.array(img)
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+
+        if os.path.isdir(path):
+            for filename in os.listdir(path):
+                if filename.endswith(".png"):
+                    template = cv2.imread(os.path.join(path, filename), cv2.IMREAD_UNCHANGED)
+                    if is_image_match(img, template, threshold):
+                        return True
+        elif os.path.isfile(path) and path.endswith(".png"):
+            template = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+            if is_image_match(img, template, threshold):
+                return True
+
+        time.sleep(0.3)  # 100 razy na sekundę
+
+    return False
+
+
 
 def locate_and_click(path, threshold, x_offset=0, y_offset=0, max_search_time=2):
     end_time = time.time() + max_search_time

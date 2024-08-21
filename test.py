@@ -3,7 +3,7 @@ import numpy as np
 from mss import mss
 
 # Wczytaj wzorzec w kolorze
-template = cv2.imread('test3.png')
+template = cv2.imread('2.png')
 h, w, _ = template.shape  # Pobierz wymiary wzorca
 
 # Zdefiniuj obszar do przechwycenia (cały ekran)
@@ -24,7 +24,7 @@ with mss() as sct:
         min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
 
         # Próg dopasowania
-        threshold = 0.8
+        threshold = 0.75
         if max_val >= threshold:
             top_left = max_loc
             center_x = top_left[0] + w // 2

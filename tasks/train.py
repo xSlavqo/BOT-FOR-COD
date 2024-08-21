@@ -15,12 +15,12 @@ def train_units():
     times = open_data("train.txt")
     current_time = datetime.now()
     
-    for unit_type in ["vest", "arch", "inf", "cav"]:
+    for unit_type in ["vest", "arch", "inf", "cav", "cele"]:
         if not config.get(unit_type):
             print(f"Brak zgody konfiguracji dla {unit_type}.")
         else:
             if unit_type in times:
-                try:
+                try: 
                     train_time = datetime.strptime(times[unit_type], '%Y-%m-%d %H:%M:%S.%f')
                     if train_time < current_time:
                         train_unit(unit_type)
@@ -65,7 +65,7 @@ def train_end_time(unit_type):
         hours, minutes, seconds = [int(i) for i in match.groups()]
         time_to_add = timedelta(hours=hours, minutes=minutes, seconds=seconds)
         end_time = datetime.now() + time_to_add
-        save_data(unit_type, end_time, "train.txt")
+        save_data(unit_type, end_time, "times.txt")
 
 coordinates = {
     'T1': (457, 871),
@@ -75,15 +75,32 @@ coordinates = {
     'T5': (900, 870)
 }
 
+coordinates_cele = {
+    'T3': (568, 874),
+    'T4': (680, 876),
+    'T5': (791, 874)
+}
+
 def start_train(unit_type):
     config = load_config()
-    if find_and_click("pngs/units/train", 0.5):
+    if locate_and_click("pngs/units/train", 0.97):
         time.sleep(1)
         value = config.get(unit_type + "_tier")
         if value:
-            pyautogui.click(coordinates.get(value))
+            if unit_type == "cele":
+                pyautogui.click(coordinates_cele.get(value))
+            else:
+                pyautogui.click(coordinates.get(value))
             time.sleep(1)
-            locate_and_click("pngs/train_start.png", 0.99)
+            remaining_time = text((1267, 828, 249, 97), invert_colors=1, tolerance=254, blur_ksize=3)
+            match = re.search(r'(\d+):(\d+):(\d+)', remaining_time)
+            if match:
+                hours, minutes, seconds = [int(i) for i in match.groups()]
+                time_to_add = timedelta(hours=hours, minutes=minutes, seconds=seconds)
+                end_time = datetime.now() + time_to_add
+                save_data(unit_type, end_time, "times.txt")
+                locate_and_click("pngs/train_start.png", 0.99)
+
 
 
 def load_building_coordinates():

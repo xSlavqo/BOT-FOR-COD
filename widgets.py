@@ -57,8 +57,8 @@ class WidgetGroup:
         self.update_buttons('rss_map', ['gold', 'wood', 'stone', 'mana'])
         self.vars['rss_map'][1].trace_add('write', lambda *args: self.update_buttons('rss_map', ['gold', 'wood', 'stone', 'mana']))
 
-        self.update_buttons('train', ['vest', 'arch', 'inf', 'cav', 'vest_tier', 'arch_tier', 'inf_tier', 'cav_tier'])
-        self.vars['train'][1].trace_add('write', lambda *args: self.update_buttons('train', ['vest', 'arch', 'inf', 'cav', 'vest_tier', 'arch_tier', 'inf_tier', 'cav_tier']))
+        self.update_buttons('train', ['vest', 'arch', 'inf', 'cav', 'cele', 'vest_tier', 'arch_tier', 'inf_tier', 'cav_tier', 'cele_tier'])
+        self.vars['train'][1].trace_add('write', lambda *args: self.update_buttons('train', ['vest', 'arch', 'inf', 'cav', "cele", 'vest_tier', 'arch_tier', 'inf_tier', 'cav_tier', 'cele_tier']))
 
     def update_buttons(self, key, button_keys, *args):
         button_type = self.vars[key][1].get()
@@ -97,7 +97,9 @@ def create_widgets(frame, settings, parent):
             {"type": "Checkbutton", "text": "Piechota", "key": "inf", "x": 450, "y": 290},
             {"type": "Combobox", "text": "", "key": "inf_tier", "values": ["T1", "T2", "T3","T4","T5"], "x": 580, "y": 290, "width": 5},
             {"type": "Checkbutton", "text": "Kawaleria", "key": "cav", "x": 450, "y": 320},
-            {"type": "Combobox", "text": "", "key": "cav_tier", "values": ["T1", "T2", "T3","T4","T5"], "x": 580, "y": 320, "width": 5}
+            {"type": "Combobox", "text": "", "key": "cav_tier", "values": ["T1", "T2", "T3","T4","T5"], "x": 580, "y": 320, "width": 5},
+            {"type": "Checkbutton", "text": "Niebianie", "key": "cele", "x": 450, "y": 350},
+            {"type": "Combobox", "text": "", "key": "cele_tier", "values": ["T3","T4","T5"], "x": 580, "y": 350, "width": 5}
         ],
         "Sojusz": [
             {"type": "Checkbutton", "text": "Pomoc sojuszu", "key": "ally_help", "x": 850, "y": 50},
