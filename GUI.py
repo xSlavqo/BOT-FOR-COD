@@ -75,10 +75,7 @@ class BotGUI:
     # Główna pętla programu
     def loop(self):
         while not self.stop_event.is_set():
-            error_occurred = execute_tasks(self.global_queue, self.stop_event)
-            
-            if error_occurred:
-                break
+            execute_tasks(self.global_queue, self.stop_event)
 
             interloop_time = load_config().get('interloop_time', 0)
             while interloop_time > 0 and not self.stop_event.is_set():
@@ -87,6 +84,7 @@ class BotGUI:
                 interloop_time -= 1
 
         self.global_queue.put("BOT zatrzymany!\n")
+
 
     # Funkcja do uruchomienia pętli głównej z opóźnieniem
     def start_loop(self):

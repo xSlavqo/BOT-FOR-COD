@@ -50,20 +50,29 @@ def execute_tasks(queue, stop_event):
         ("ally_gifts", ally_gifts, 1000, 1800, False),
     ]
 
-    for task_name, task_func, timeout, interval, critical in tasks:
-        if config.get(task_name, "").lower() == "true" or (config.get(task_name) is None and critical):
-            error = execute_task(task_name, task_func, timeout, interval, critical, queue, stop_event)
-            if error:
-                if error == "timeout":
-                    queue.put("Wystąpił błąd typu 'timeout'. Restartowanie...\n")
-                elif error == "general_error":
-                    queue.put("Wystąpił błąd typu 'general_error'. Zatrzymanie pętli.\n")
-                    return error
+    while True:  # Pętla główna dla ponawiania zadań
+        for task_name, task_func, timeout, interval, critical in tasks:
+            if config.get(task_name, "").lower() == "true" or (config.get(task_name) is None and critical):
+                error = execute_task(task_name, task_func, timeout, interval, critical, queue, stop_event)
+                if error:
+                    if error == "timeout":
+                        queue.put("Wystąpił błąd typu 'timeout'. Restartowanie...\n")
+                    elif error == "general_error":
+                        queue.put("Wystąpił błąd typu 'general_error'. Zatrzymanie pętli.\n")
+                        return error  # Zatrzymanie pętli, jeśli inny błąd niż timeout
 
-                while reboot_time > 0 and not stop_event.is_set():
-                    queue.put(f"Restart po błędzie za {reboot_time} sekund\n")
-                    time.sleep(1)
-                    reboot_time -= 1
-                return error
+                    # Odliczanie do restartu po timeout
+                    while reboot_time > 0 and not stop_event.is_set():
+                        queue.put(f"Restart po błędzie za {reboot_time} sekund\n")
+                        time.sleep(1)
+                        reboot_time -= 1
+
+                    if stop_event.is_set():
+                        return error  # Wyjście, jeśli stop_event jest ustawiony
+
+                    queue.put("Ponowne uruchamianie zadań po timeout...\n")
+                    break  # Restart zadań po timeout
+        else:
+            break  # Jeśli wszystkie zadania zakończą się bez błędów, wyjście z pętli głównej
 
     return False
