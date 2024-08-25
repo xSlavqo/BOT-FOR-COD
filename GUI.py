@@ -45,17 +45,6 @@ class VariableManager:
     def start(self):
         threading.Thread(target=self.process_queue, daemon=True).start()
 
-    def save_variables_to_file(self, file_name="variables.txt", interval=10):
-        while True:
-            with open(file_name, "a") as file:  # Otwieramy plik w trybie dodawania
-                file.write(f"\nZapisywanie zmiennych o {time.ctime()}:\n")  # Dodaj timestamp
-                for key, value in self.variables.items():
-                    file.write(f"{key}: {value}\n")
-            time.sleep(interval)  # Odczekaj określoną liczbę sekund przed kolejnym zapisem
-
-    def start_saving_to_file(self, file_name="variables.txt", interval=10):
-        threading.Thread(target=self.save_variables_to_file, args=(file_name, interval), daemon=True).start()
-
 
 class BotGUI:
     def __init__(self):
@@ -87,7 +76,6 @@ class BotGUI:
         self.variable_queue = Queue()
         self.variable_manager = VariableManager(self.variable_queue)
         self.variable_manager.start()
-        self.variable_manager.start_saving_to_file("variables.txt", 5)  # Zapisuj co 5 sekund
 
         # Konfiguracja obsługi zdarzeń
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)

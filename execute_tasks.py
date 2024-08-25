@@ -6,7 +6,7 @@ from tasks.hospital import hospital
 from tasks.train import train_units
 from tasks.windows_management import cod_run, cod_restart, tv_close
 from tools.functions import load_settings, load_config
-from test3 import auto_build
+from tasks.auto_build import auto_build
 
 last_execution_time = {}
 
