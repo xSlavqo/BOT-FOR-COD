@@ -1,39 +1,43 @@
-import cv2
-import numpy as np
-from mss import mss
+import threading
+import queue
 
-# Wczytaj wzorzec w kolorze
-template = cv2.imread('2.png')
-h, w, _ = template.shape  # Pobierz wymiary wzorca
+# Kolejka do komunikacji między wątkami
+variable_queue = queue.Queue()
 
-# Zdefiniuj obszar do przechwycenia (cały ekran)
-monitor = {'top': 0, 'left': 0, 'width': 1920, 'height': 1080}
+# Słownik do przechowywania zmiennych
+variable_storage = {}
 
-with mss() as sct:
+# Funkcja B: Dodaje zmienne do kolejki
+def add_variable(name, value):
+    variable_queue.put((name, value))
+
+# Funkcja A: Monitoruje kolejkę i aktualizuje słownik
+def variable_manager():
     while True:
-        # Przechwyć zrzut ekranu
-        screenshot = sct.grab(monitor)
-        img = np.array(screenshot)
+        # Sprawdzanie, czy w kolejce są nowe zmienne
+        while not variable_queue.empty():
+            name, value = variable_queue.get()
+            variable_storage[name] = value
 
-        # Upewnij się, że obraz zrzutu ekranu ma trzy kanały (kolorowe)
-        if img.shape[2] == 4:  # Jeśli zrzut ekranu jest z kanałem alfa (RGBA)
-            img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)  # Konwertuj na BGR
-
-        # Dopasowanie wzorca
-        res = cv2.matchTemplate(img, template, cv2.TM_CCOEFF_NORMED)
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
-
-        # Próg dopasowania
-        threshold = 0.75
-        if max_val >= threshold:
-            top_left = max_loc
-            center_x = top_left[0] + w // 2
-            center_y = top_left[1] + h // 2
-            print(f'Koordynaty dopasowania: ({center_x}, {center_y})')
-
-        # Wyjdź z pętli na klawisz 'q'
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+# Funkcja do zbierania danych od użytkownika
+def user_input_listener():
+    while True:
+        command = input("Podaj 'ok', aby wyświetlić zmienne, 'exit' by zakończyć, lub wprowadź zmienną: ")
+        if command == "ok":
+            print("Aktualne wartości zmiennych:")
+            for name, value in variable_storage.items():
+                print(f"{name}: {value}")
+        elif command == "exit":
+            print("Kończę program.")
             break
+        else:
+            # Zakładamy, że użytkownik chce wprowadzić zmienną
+            name, value = command.split("=")
+            add_variable(name.strip(), value.strip())
 
-cv2.destroyAllWindows()
- 
+# Uruchomienie funkcji A w osobnym wątku
+manager_thread = threading.Thread(target=variable_manager, daemon=True)
+manager_thread.start()
+
+# Uruchomienie funkcji do zbierania danych od użytkownika w głównym wątku
+user_input_listener()

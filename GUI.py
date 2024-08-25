@@ -1,6 +1,7 @@
 import json
 import sys
 import tkinter as tk
+import threading
 from queue import Empty, Queue
 from screeninfo import get_monitors
 from threading import Event, Thread
@@ -24,6 +25,37 @@ class TextRedirector:
 
     def flush(self):
         pass
+
+class VariableManager:
+    def __init__(self, queue):
+        self.variables = {}
+        self.queue = queue
+
+    def process_queue(self):
+        while True:
+            data = self.queue.get()
+
+            # Jeśli data jest tupli (nazwa, wartość), przechowujemy wartość
+            if isinstance(data, tuple) and len(data) == 2:
+                name, value = data
+                self.variables[name] = value
+            elif data is None:  # Sygnał do zakończenia
+                break
+
+    def start(self):
+        threading.Thread(target=self.process_queue, daemon=True).start()
+
+    def save_variables_to_file(self, file_name="variables.txt", interval=10):
+        while True:
+            with open(file_name, "a") as file:  # Otwieramy plik w trybie dodawania
+                file.write(f"\nZapisywanie zmiennych o {time.ctime()}:\n")  # Dodaj timestamp
+                for key, value in self.variables.items():
+                    file.write(f"{key}: {value}\n")
+            time.sleep(interval)  # Odczekaj określoną liczbę sekund przed kolejnym zapisem
+
+    def start_saving_to_file(self, file_name="variables.txt", interval=10):
+        threading.Thread(target=self.save_variables_to_file, args=(file_name, interval), daemon=True).start()
+
 
 class BotGUI:
     def __init__(self):
@@ -51,6 +83,12 @@ class BotGUI:
         self.global_queue = Queue()
         sys.stdout = TextRedirector(self.terminal_text, self.global_queue)
 
+        # Inicjalizacja dodatkowej kolejki dla VariableManager jako atrybut instancji
+        self.variable_queue = Queue()
+        self.variable_manager = VariableManager(self.variable_queue)
+        self.variable_manager.start()
+        self.variable_manager.start_saving_to_file("variables.txt", 5)  # Zapisuj co 5 sekund
+
         # Konfiguracja obsługi zdarzeń
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.root.after(100, self.process_queue)
@@ -62,7 +100,7 @@ class BotGUI:
         if load_config().get('autostart'):
             self.start_loop()
         self.root.mainloop()
-
+   
     # Funkcja pomocnicza do otwierania okna na określonym monitorze
     def open_window_on_specific_monitor(self, monitor_index):
         monitors = get_monitors()
@@ -75,21 +113,19 @@ class BotGUI:
     # Główna pętla programu
     def loop(self):
         while not self.stop_event.is_set():
-            execute_tasks(self.global_queue, self.stop_event)
-
+            # Poprawne przekazanie argumentów do execute_tasks    
+            execute_tasks(self.global_queue, self.variable_manager, self.variable_queue, self.stop_event)
             interloop_time = load_config().get('interloop_time', 0)
             while interloop_time > 0 and not self.stop_event.is_set():
                 self.global_queue.put(f"Uruchomienie pętli za {interloop_time} sekund\n")
                 time.sleep(1)
                 interloop_time -= 1
-
         self.global_queue.put("BOT zatrzymany!\n")
 
 
     # Funkcja do uruchomienia pętli głównej z opóźnieniem
     def start_loop(self):
         delay_time = load_config().get('delay_time', 0)
-        
         def delayed_start(delay):
             while delay > 0 and not self.stop_event.is_set():
                 self.global_queue.put(f"Uruchomienie bota za {delay} sekund\n")

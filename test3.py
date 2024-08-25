@@ -7,51 +7,67 @@ from tasks.location import *
 from tools.locate import *
 from tools.text import *
 
-
 class BuildQueue:
-    __slots__ = ['id', 'is_unlocked', 'time_end', 'coordinates']
+    __slots__ = ['id', 'unlocked', 'time_end', 'region', 'sett_button']
 
-    def __init__(self, id, coordinates, is_unlocked=False):
+    def __init__(self, id):
         self.id = id
-        self.coordinates = coordinates
-        self.is_unlocked = is_unlocked
+        self.unlocked = None
         self.time_end = None
 
+        if id == 1:
+            self.region = (380, 485, 1177, 191)
+            self.sett_button = (1412, 590)
+            self.unlocked = True
+        elif id == 2:
+            self.region = (386, 690, 1153, 194)
+            self.sett_button = (1411, 782)
+        else:
+            self.region = (0, 0, 0, 0) 
+            self.sett_button = (0, 0) 
+
     def check_if_unlocked(self):
-        self.is_unlocked = not locate_in_region("2.png", 0.95, self.coordinates)
-        return self.is_unlocked
-    
-    def check_if_busy(self):
-        if self.time_end:
-            if datetime.now() < self.time_end:
-                return True
-            else:
-                self.time_end = None
-        time.sleep(1)
-        if locate_in_region("pngs/build3.png", 0.99, self.coordinates):
-            return False
-        return True
-    
+        if not enter_building():
+            print("Failed to enter the building.")
+            self.unlocked = None
+            return self.unlocked
+        if locate_in_region("pngs/queue_run.png", 0.95, region=self.region):
+            self.unlocked = True
+        elif locate_in_region("pngs/queue_lock.png", 0.95, region=self.region):
+            self.unlocked = False
+        return self.unlocked
+
+
+    def check_time(self):
+        if self.time_end and datetime.now() < self.time_end:
+            return True
+        self.time_end = None
+
     def set_time_end(self, time_end):
         self.time_end = time_end
-                
 
-def enter_building():
-    if locate("1.png", 0.95) is True:
-        return True
-    else:
-        map()
-        coordinates = load_building_coordinates()
-        city()
-        time.sleep(1)
-        buildings = coordinates.get("buildings")
-        pyautogui.mouseDown(buildings)
-        pyautogui.mouseUp(buildings)
-        if locate_and_click("pngs/build2.png", 0.97, 2):
-            return True
-    
+    def time_update(self, time_end):
+        helps = text((1157, 320, 46, 25), invert_colors=1, tolerance=240, blur_ksize=1)
+        if '/' in helps:
+            licznik, mianownik = helps.split('/')
+            licznik = int(licznik)
+            mianownik = int(mianownik)
+            
+            if licznik == mianownik:
+                remaining_time = text((946, 311, 175, 33), invert_colors=1, tolerance=240, blur_ksize=1)
+                remaining_time = re.search(r'(\d+):(\d+):(\d+)', remaining_time)
+                if remaining_time:
+                    hours, minutes, seconds = [int(i) for i in remaining_time.groups()]
+                    time_to_add = timedelta(hours=hours, minutes=minutes, seconds=seconds)
+                    time_end = datetime.now() + time_to_add
+            else:
+                time_end = datetime.now() + timedelta(minutes=10)
+        pyautogui.press("esc")
+        self.time_end = time_end
+
+
 def load_building_coordinates():
-    coordinates = {}
+    region = {}
     desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
     filename = os.path.join(desktop_path, "buildings.txt")
     
@@ -62,50 +78,86 @@ def load_building_coordinates():
                 unit = lines[i].split('_')[0]
                 x = int(lines[i].split('=')[1].strip())
                 y = int(lines[i+1].split('=')[1].strip())
-                coordinates[unit] = (x, y)
+                region[unit] = (x, y)
     except FileNotFoundError:
         print("Plik buildings.txt nie został znaleziony.")
-    
-    return coordinates
+    return region
 
-
-def start_build(queue):
-    locate_and_click("pngs/build3.png", 0.97, 2)
-    locate_and_click("pngs/build4.png", 0.97, 2)
+def enter_building():
+    if locate("pngs/queue_home.png", 0.95):
+        return True
+    map()
+    city()
     time.sleep(1)
-    time_build = text((1324, 912, 123, 35), invert_colors=1, tolerance=240, blur_ksize=1)
-    time_build = re.search(r'(\d+):(\d+):(\d+)', time_build)
-    hours, minutes, seconds = [int(i) for i in time_build.groups()]
-    time_to_add = timedelta(hours=hours, minutes=minutes, seconds=seconds)
-    end_time = datetime.now() + time_to_add
-    queue.set_time_end(end_time)
-    print(queue.time_end)
-    locate_and_click("pngs/build5.png", 0.97, 2)
-    locate_and_click("pngs/ask_help.png", 0.95, 3)
+    region = load_building_coordinates()
+    buildings = region.get("buildings")
+    pyautogui.mouseDown(buildings)
+    pyautogui.mouseUp(buildings)
+    time.sleep(0.5)
+    if locate_and_click("pngs/queue_home_enter.png", 0.97, 2):
+        return True
+
+def start_upgrade(queue):
+    time.sleep(1)
+    queue.set_time_end(datetime.now() + timedelta(minutes=10))
+    locate_and_click("pngs/queue_upgrade_start.png", 0.97, 2)
+    time.sleep(1)
+    if locate_and_click("pngs/ask_help.png", 0.95, 3):
+        pass
 
 def check_and_control_queue(queue):
-    if queue.time_end:    
-        if queue.time_end > datetime.now():
-            print(f"Queue {queue.id} is busy.")
-    enter_building()
-    time.sleep(1)
-    if queue.check_if_unlocked():
-        if queue.check_if_busy() == False:
-            print(f"Queue {queue.id} is not busy. Starting start_build.")
-            time.sleep(3)
-            start_build(queue)
-            
-        else:
-            print(f"Queue {queue.id} is busy.")
+    if queue.unlocked is None:
+        enter_building() 
+        queue.check_if_unlocked() 
+    if queue.unlocked is False:
+        print(f"Kolejka {queue.id} jest zablokowana.")
+        return
+    if queue.check_time():
+        time_remaining = queue.time_end - datetime.now()
+        minutes, seconds = divmod(time_remaining.total_seconds(), 60)
+        hours, minutes = divmod(minutes, 60)
+        print(f"Kolejka {queue.id} jest zajęta. Pozostały czas: {int(hours)} godziny, {int(minutes)} minuty, {int(seconds)} sekundy.")
     else:
-        print(f"Queue {queue.id} is locked.")
+        if not enter_building():
+            print("Błąd wejścia do budynku kolejek budowania.")
+            return 
+        time.sleep(0.5)
+        if not locate_and_click_in_region("pngs/queue_run.png", 0.96, region=queue.region):
+            queue.check_if_unlocked() 
+            return
+        time.sleep(0.5)
+        if locate_and_click("pngs/building_upgrade.png", 0.99, 2):
+            print("Rozpoczynam ulepszanie ...")
+            start_upgrade(queue)
+            return
+        elif locate("pngs/speedup.png", 0.99):
+            print(f"Kolejka {queue.id} jest zajęta, aktualizuje czas zakończenia ...")
+            time.sleep(1)
+            queue.time_update(queue.time_end)
+            return
+        elif locate("pngs/build_new.png", 0.99):
+            print("Buduje nowy budynek ...")
+            time.sleep(1)
+            pyautogui.click(298, 746)
+            locate_and_click("pngs/build_new_start.png", 0.97, 2)
+            time.sleep(20)
+            print("Restart funkcji po 20 sekundach...")
+            return check_and_control_queue(queue)
 
-def auto_build():
-    queue1 = None
-    queue2 = None
-    if not queue1:
-            queue1 = BuildQueue(1, (380, 485, 1177, 191))
-    if not queue2:
-        queue2 = BuildQueue(2, (383, 690, 1175, 172))
-    check_and_control_queue(queue1)
+
+
+def auto_build(variable_manager, variable_queue):
+    if 'queue1' not in variable_manager.variables:
+        queue1 = BuildQueue(1)
+    else:
+        queue1 = variable_manager.variables['queue1']
+
+    if 'queue2' not in variable_manager.variables:
+        queue2 = BuildQueue(2)
+    else:
+        queue2 = variable_manager.variables['queue2']
+
+    #check_and_control_queue(queue1)
+    variable_queue.put(('queue1', queue1))
     check_and_control_queue(queue2)
+    variable_queue.put(('queue2', queue2))
