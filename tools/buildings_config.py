@@ -72,3 +72,22 @@ def buildings_config(window_title="Call of Dragons"):
             file.write(f"{buildings[i]}_y = {point[1]}\n")
 
     print(f"Zaznaczone punkty zostały zapisane do {filename}.")
+
+
+
+def load_building_coordinates():
+    region = {}
+    desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+    filename = os.path.join(desktop_path, "buildings.txt")
+    
+    try:
+        with open(filename, "r", encoding="utf-8") as file:
+            lines = file.readlines()
+            for i in range(0, len(lines), 2):
+                unit = lines[i].split('_')[0]
+                x = int(lines[i].split('=')[1].strip())
+                y = int(lines[i+1].split('=')[1].strip())
+                region[unit] = (x, y)
+    except FileNotFoundError:
+        print("Plik buildings.txt nie został znaleziony.")
+    return region

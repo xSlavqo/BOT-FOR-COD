@@ -7,12 +7,13 @@ from tools.text import *
 from tools.functions import save_data, open_data, load_config
 from tools.find import *
 from tasks.location import *
+from tasks.location import *
 
 
 
 def train_units():
     config = load_config()
-    times = open_data("train.txt")
+    times = open_data("times.txt")
     current_time = datetime.now()
     
     for unit_type in ["vest", "arch", "inf", "cav", "cele"]:
@@ -36,6 +37,8 @@ def train_units():
 
 def train_unit(unit_type):
     coordinates = load_building_coordinates()
+    map()
+    city()
     if unit_type not in coordinates:
         print(f"Brak zapisanych współrzędnych dla {unit_type}.")
         return

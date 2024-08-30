@@ -57,8 +57,8 @@ class WidgetGroup:
         self.update_buttons('rss_map', ['gold', 'wood', 'stone', 'mana'])
         self.vars['rss_map'][1].trace_add('write', lambda *args: self.update_buttons('rss_map', ['gold', 'wood', 'stone', 'mana']))
 
-        self.update_buttons('train', ['vest', 'arch', 'inf', 'cav', 'cele', 'vest_tier', 'arch_tier', 'inf_tier', 'cav_tier', 'cele_tier'])
-        self.vars['train'][1].trace_add('write', lambda *args: self.update_buttons('train', ['vest', 'arch', 'inf', 'cav', "cele", 'vest_tier', 'arch_tier', 'inf_tier', 'cav_tier', 'cele_tier']))
+        self.update_buttons('train_units', ['vest', 'arch', 'inf', 'cav', 'cele', 'vest_tier', 'arch_tier', 'inf_tier', 'cav_tier', 'cele_tier'])
+        self.vars['train_units'][1].trace_add('write', lambda *args: self.update_buttons('train_units', ['vest', 'arch', 'inf', 'cav', "cele", 'vest_tier', 'arch_tier', 'inf_tier', 'cav_tier', 'cele_tier']))
 
     def update_buttons(self, key, button_keys, *args):
         button_type = self.vars[key][1].get()
@@ -89,7 +89,7 @@ def create_widgets(frame, settings, parent):
             {"type": "Checkbutton", "text": "Leczenie jednostek", "key": "hospital", "x": 450, "y": 50},
             {"type": "Checkbutton", "text": "Automatyczna budowa", "key": "auto_build", "x": 450, "y": 80},
             {"type": "Checkbutton", "text": "Dialogi bohaterów", "key": "dialogues", "x": 450, "y": 110},
-            {"type": "Checkbutton", "text": "Szkolenie jednostek", "key": "train", "x": 450, "y": 200},
+            {"type": "Checkbutton", "text": "Szkolenie jednostek", "key": "train_units", "x": 450, "y": 200},
             {"type": "Checkbutton", "text": "Westalki", "key": "vest", "x": 450, "y": 230},
             {"type": "Combobox", "text": "", "key": "vest_tier", "values": ["T1", "T2", "T3","T4","T5"], "x": 580, "y": 230, "width": 5},
             {"type": "Checkbutton", "text": "Łucznicy", "key": "arch", "x": 450, "y": 260},

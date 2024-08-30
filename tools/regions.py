@@ -1,6 +1,7 @@
 import cv2
 from PIL import ImageGrab
 import numpy as np
+import time
 
 regions = []
 drawing = False
@@ -41,5 +42,7 @@ def capture_screenshot_and_define_regions():
     return regions
 
 if __name__ == "__main__":
+
+    time.sleep(2)
     selected_regions = capture_screenshot_and_define_regions()
     print(f'Zaznaczone regiony: {selected_regions}')

@@ -98,7 +98,7 @@ def enter_building():
 
 def start_upgrade(queue):
     time.sleep(1)
-    queue.set_time_end(datetime.now() + timedelta(minutes=10))
+    queue.set_time_end(datetime.now() + timedelta(seconds=10))
     locate_and_click("pngs/queue_upgrade_start.png", 0.97, 2)
     time.sleep(1)
     if locate_and_click("pngs/ask_help.png", 0.95, 3):
@@ -121,27 +121,28 @@ def check_and_control_queue(queue):
             print("Błąd wejścia do budynku kolejek budowania.")
             return 
         time.sleep(0.5)
-        if not locate_and_click_in_region("pngs/queue_run.png", 0.96, region=queue.region):
-            queue.check_if_unlocked() 
-            return
-        time.sleep(0.5)
-        if locate_and_click("pngs/building_upgrade.png", 0.99, 2):
-            print("Rozpoczynam ulepszanie ...")
-            start_upgrade(queue)
-            return
-        elif locate("pngs/speedup.png", 0.99):
+        if locate_and_click_in_region("pngs/queue_run.png", 0.96, region=queue.region):
+            if locate_and_click("pngs/building_upgrade.png", 0.99, 2):
+                print("Rozpoczynam ulepszanie ...")
+                start_upgrade(queue)
+                return
+            elif locate("pngs/build_new.png", 0.99):
+                print("Buduje nowy budynek ...")
+                time.sleep(1)
+                pyautogui.click(298, 746)
+                locate_and_click("pngs/build_new_start.png", 0.97, 2)
+                time.sleep(20)
+                print("Restart funkcji po 20 sekundach...")
+                return check_and_control_queue(queue)
+        elif locate_and_click_in_region("pngs/queue_speedup.png", 0.96, region=queue.region):
             print(f"Kolejka {queue.id} jest zajęta, aktualizuje czas zakończenia ...")
             time.sleep(1)
             queue.time_update(queue.time_end)
             return
-        elif locate("pngs/build_new.png", 0.99):
-            print("Buduje nowy budynek ...")
-            time.sleep(1)
-            pyautogui.click(298, 746)
-            locate_and_click("pngs/build_new_start.png", 0.97, 2)
-            time.sleep(20)
-            print("Restart funkcji po 20 sekundach...")
-            return check_and_control_queue(queue)
+        else:
+            time.sleep(0.5)
+            queue.check_if_unlocked() 
+            return
 
 
 
@@ -156,7 +157,7 @@ def auto_build(variable_manager, variable_queue):
     else:
         queue2 = variable_manager.variables['queue2']
 
-    #check_and_control_queue(queue1)
+    check_and_control_queue(queue1)
     variable_queue.put(('queue1', queue1))
     check_and_control_queue(queue2)
     variable_queue.put(('queue2', queue2))

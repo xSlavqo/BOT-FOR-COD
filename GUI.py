@@ -108,7 +108,6 @@ class BotGUI:
                 self.global_queue.put(f"Uruchomienie pętli za {interloop_time} sekund\n")
                 time.sleep(1)
                 interloop_time -= 1
-        self.global_queue.put("BOT zatrzymany!\n")
 
 
     # Funkcja do uruchomienia pętli głównej z opóźnieniem
@@ -144,6 +143,7 @@ class BotGUI:
     # Funkcja do zatrzymania pętli głównej
     def stop_loop(self):
         self.stop_event.set()
+        self.global_queue.put("BOT zatrzymany!\n")
         if self.loop_thread is not None and self.loop_thread.is_alive():
             self.loop_thread.join()
 
