@@ -1,24 +1,15 @@
 import time
 from building_menager.building import Building
-from building_menager.building_logic import check_lvl
+from building_menager.building_logic import *
+from building_menager.building_queues import *
 
-def building_create(variable_manager, variable_queue):
-    if 'buildings' not in variable_manager.variables:
-        building_names = ["center", "buildings", "labo", "vest", "arch", "inf", "cav", "cele"]
-        buildings = {}
-
-        for name in building_names:
-            buildings[name] = Building(name=name)
-        
-        variable_queue.put(('buildings', buildings))
-    return
-
-def chceck_unlock(variable_manager, variable_queue):
-    time.sleep(1)
-    if 'buildings' not in variable_manager.variables:
-        raise ValueError("Buildings nie zostały jeszcze utworzone!")
+def building_main(variable_manager, variable_queue):
+    # Tworzenie budynków
+    building_names = ["center", "buildings", "labo", "vest", "arch", "inf", "cav", "cele"]
+    buildings = {name: Building(name=name) for name in building_names}
     
-    buildings = variable_manager.variables['buildings']
+    # Sprawdzanie odblokowania
+    time.sleep(1)
     check_lvl(buildings["center"])
 
     if buildings["center"].level >= 3:
@@ -31,7 +22,24 @@ def chceck_unlock(variable_manager, variable_queue):
     if buildings["center"].level >= 16:
         buildings["cele"].unlocked = True
 
+    # Automatyczne budowanie - Sprawdzanie istnienia kolejek
+    if 'queue1' not in variable_manager.variables:
+        queue1 = BuildQueue(1)
+        variable_manager.variables['queue1'] = queue1
+    else:
+        queue1 = variable_manager.variables['queue1']
 
-def building_main(variable_manager, variable_queue):
-    building_create(variable_manager, variable_queue)
-    chceck_unlock(variable_manager, variable_queue)
+    if 'queue2' not in variable_manager.variables:
+        queue2 = BuildQueue(2)
+        variable_manager.variables['queue2'] = queue2
+    else:
+        queue2 = variable_manager.variables['queue2']
+
+    # Kontrolowanie kolejek - Teraz wywołujemy metodę `control_queue`
+    queue1.control_queue(buildings["buildings"])
+    queue2.control_queue(buildings["buildings"])
+
+    # Wysyłanie do variable_queue
+    variable_queue.put(('buildings', buildings))
+    variable_queue.put(('queue1', queue1))
+    variable_queue.put(('queue2', queue2))
