@@ -2,8 +2,7 @@ import json
 import sys
 import tkinter as tk
 import threading
-from queue import Empty, Queue
-from screeninfo import get_monitors
+from queue import Empty
 from threading import Event, Thread
 from tkinter import ttk
 import keyboard
@@ -11,49 +10,41 @@ import time
 from tools.functions import load_config, load_settings
 from execute_tasks import execute_tasks
 from widgets import create_widgets
-
+from GUI_utils import building_main, VariableManager, StdoutRedirector, center_window_on_monitor, queue_manager, QueueManager
 from tools.buildings_config import buildings_config
-
-# Klasa do przekierowywania stdout do widżetu tekstowego
-class TextRedirector:
-    def __init__(self, widget, queue):
-        self.widget = widget
-        self.queue = queue
-
-    def write(self, txt):
-        self.queue.put(txt)
-
-    def flush(self):
-        pass
-
-class VariableManager:
-    def __init__(self, queue):
-        self.variables = {}
-        self.queue = queue
-
-    def process_queue(self):
-        while True:
-            data = self.queue.get()
-
-            # Jeśli data jest tupli (nazwa, wartość), przechowujemy wartość
-            if isinstance(data, tuple) and len(data) == 2:
-                name, value = data
-                self.variables[name] = value
-            elif data is None:  # Sygnał do zakończenia
-                break
-
-    def start(self):
-        threading.Thread(target=self.process_queue, daemon=True).start()
+import threading
 
 
 class BotGUI:
     def __init__(self):
+        print("Rozpoczęcie inicjalizacji BotGUI...")
+        
+        # Inicjalizacja QueueManager bezpośrednio w tym pliku
+        global queue_manager
+        queue_manager = QueueManager()
+        queue_manager.create_queue('global')
+        queue_manager.create_queue('variable')
+        print("QueueManager zainicjalizowany globalnie:", queue_manager)
+
+        # Sprawdzamy, czy queue_manager został poprawnie zainicjalizowany
+        if not queue_manager:
+            raise RuntimeError("QueueManager nie został poprawnie zainicjalizowany!")
+
+        # Inicjalizacja VariableManager
+        self.variable_manager = VariableManager(queue_manager.get_queue('variable'))
+        self.variable_manager.start()
+
+        # Dodajemy inicjalizację budynków
+        self.init_buildings()
+
         # Inicjalizacja głównego okna
         self.root = tk.Tk()
         self.root.title("BOT FOR COD")
         self.window_width = 1500
         self.window_height = 800
-        self.open_window_on_specific_monitor(0)
+
+        # Wycentrowanie okna na wybranym monitorze
+        center_window_on_monitor(self.root, 0, self.window_width, self.window_height)
 
         # Tworzenie głównego kontenera i widżetów
         self.frame = tk.Frame(self.root)
@@ -68,14 +59,8 @@ class BotGUI:
         self.terminal_text = tk.Text(self.terminal_frame, wrap=tk.WORD, state=tk.DISABLED, height=10)
         self.terminal_text.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
-        # Inicjalizacja kolejki i przekierowanie stdout
-        self.global_queue = Queue()
-        sys.stdout = TextRedirector(self.terminal_text, self.global_queue)
-
-        # Inicjalizacja dodatkowej kolejki dla VariableManager jako atrybut instancji
-        self.variable_queue = Queue()
-        self.variable_manager = VariableManager(self.variable_queue)
-        self.variable_manager.start()
+        # Przekierowanie stdout do global_queue
+        sys.stdout = StdoutRedirector(self.terminal_text, queue_manager.get_queue('global'))
 
         # Konfiguracja obsługi zdarzeń
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -87,38 +72,23 @@ class BotGUI:
         # Uruchomienie pętli głównej, jeśli autostart jest włączony
         if load_config().get('autostart'):
             self.start_loop()
+
+        # Uruchomienie głównej pętli Tkintera
         self.root.mainloop()
-   
-    # Funkcja pomocnicza do otwierania okna na określonym monitorze
-    def open_window_on_specific_monitor(self, monitor_index):
-        monitors = get_monitors()
-        if monitor_index < len(monitors):
-            monitor = monitors[monitor_index]
-            x = monitor.x + (monitor.width - self.window_width) // 2
-            y = monitor.y + (monitor.height - self.window_height) // 2
-            self.root.geometry(f"{self.window_width}x{self.window_height}+{x}+{y}")
 
-    # Główna pętla programu
-    def loop(self):
-        while not self.stop_event.is_set():
-            # Poprawne przekazanie argumentów do execute_tasks    
-            execute_tasks(self.global_queue, self.variable_manager, self.variable_queue, self.stop_event)
-            interloop_time = load_config().get('interloop_time', 0)
-            while interloop_time > 0 and not self.stop_event.is_set():
-                self.global_queue.put(f"Uruchomienie pętli za {interloop_time} sekund\n")
-                time.sleep(1)
-                interloop_time -= 1
+    def init_buildings(self):
+        building_main(self.variable_manager, queue_manager.get_queue('variable'))
 
 
-    # Funkcja do uruchomienia pętli głównej z opóźnieniem
     def start_loop(self):
         delay_time = load_config().get('delay_time', 0)
+
         def delayed_start(delay):
             while delay > 0 and not self.stop_event.is_set():
-                self.global_queue.put(f"Uruchomienie bota za {delay} sekund\n")
+                queue_manager.put('global', f"Uruchomienie bota za {delay} sekund\n")
                 time.sleep(1)
                 delay -= 1
-            
+
             if not self.stop_event.is_set():
                 self.loop_thread = Thread(target=self.loop)
                 self.loop_thread.start()
@@ -127,23 +97,26 @@ class BotGUI:
         self.loop_thread = Thread(target=delayed_start, args=(delay_time,))
         self.loop_thread.start()
 
+    # Główna pętla programu
+    def loop(self):
+        while not self.stop_event.is_set():
+            execute_tasks(queue_manager.get_queue('global'), self.variable_manager, queue_manager.get_queue('variable'), self.stop_event)
+            interloop_time = load_config().get('interloop_time', 0)
+            while interloop_time > 0 and not self.stop_event.is_set():
+                queue_manager.put('global', f"Uruchomienie pętli za {interloop_time} sekund\n")
+                time.sleep(1)
+                interloop_time -= 1
+
     # Funkcja do obsługi kolejki komunikatów
     def process_queue(self):
-        try:
-            while True:
-                msg = self.global_queue.get_nowait()
-                self.terminal_text.config(state=tk.NORMAL)
-                self.terminal_text.insert(tk.END, msg)
-                self.terminal_text.config(state=tk.DISABLED)
-                self.terminal_text.see(tk.END)
-        except Empty:
-            pass
+        """Przetwarzanie global_queue i aktualizacja terminala."""
+        queue_manager.process_global_queue(self.terminal_text)
         self.root.after(100, self.process_queue)
 
     # Funkcja do zatrzymania pętli głównej
     def stop_loop(self):
         self.stop_event.set()
-        self.global_queue.put("BOT zatrzymany!\n")
+        queue_manager.put('global', "BOT zatrzymany!\n")
         if self.loop_thread is not None and self.loop_thread.is_alive():
             self.loop_thread.join()
 

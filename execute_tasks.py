@@ -7,7 +7,7 @@ from tasks.train import train_units
 from tasks.windows_management import cod_run, cod_restart, tv_close
 from tools.functions import load_settings, load_config
 from tasks.auto_build import auto_build
-from building_menager.building_main import *
+from building_menager.main import *
 
 last_execution_time = {}
 
@@ -48,11 +48,11 @@ def execute_tasks(global_queue, variable_manager, variable_queue, stop_event):
     tasks = [
         ("tv_close", tv_close, 100, 0, True),
         ("cod", cod_run, 100, 0, True),
-        ("building_main", lambda: building_main(variable_manager, variable_queue), 100, 0, True),
+        ("building_main", building_main, 100, 0, True),
         ("rss_map", rss_map, 120, 0, False),
         ("hospital", hospital, 30, 7200, False),
         ("train_units", train_units, 200, 0, False),
-        ("auto_build", lambda: auto_build(variable_manager, variable_queue), 200, 0, False),
+        ("auto_build", auto_build, 200, 0, False),
         ("ally_help", ally_help, 10, 0, False),
         ("ally_gifts", ally_gifts, 300, 7200, False),
     ]

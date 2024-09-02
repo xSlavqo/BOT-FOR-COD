@@ -1,3 +1,5 @@
+# building_manager/building.py
+
 from tools.buildings_config import load_building_coordinates
 
 class Building:
@@ -18,4 +20,3 @@ class Building:
             self.type = 'train'
         else:
             self.type = None
-
