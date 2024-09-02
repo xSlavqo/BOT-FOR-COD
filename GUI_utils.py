@@ -4,8 +4,6 @@ from queue import Queue, Empty
 from screeninfo import get_monitors
 from building_menager.building import Building
 
-queue_manager = None
-
 class StdoutRedirector:
     def __init__(self, widget, queue):
         self.widget = widget
@@ -33,11 +31,10 @@ class VariableManager:
     def process_queue(self):
         while True:
             data = self.queue.get()
-            # Jeśli data jest tupli (nazwa, wartość), przechowujemy wartość
             if isinstance(data, tuple) and len(data) == 2:
                 name, value = data
                 self.variables[name] = value
-            elif data is None:  # Sygnał do zakończenia
+            elif data is None:
                 break
 
     def start(self):
@@ -66,7 +63,6 @@ class QueueManager:
                 return None
 
     def process_global_queue(self, terminal_widget):
-        """Przetwarzanie kolejki 'global' i aktualizacja terminala Tkinter."""
         try:
             while True:
                 msg = self.queues['global'].get_nowait()
@@ -77,11 +73,9 @@ class QueueManager:
         except Empty:
             pass
 
-def building_main(variable_manager, variable_queue):
+def init_buildings(variable_manager, variable_queue):
     building_names = ["center", "buildings", "labo", "vest", "arch", "inf", "cav", "cele"]
     buildings = {name: Building(name=name) for name in building_names}
 
     variable_queue.put(('buildings', buildings))
     print("Budynki utworzone!")
-
-

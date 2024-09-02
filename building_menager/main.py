@@ -1,7 +1,4 @@
-# main.py
-
-def building_main():
-    from GUI import variable_manager, queue_manager
+def building_print(variable_manager, queue_manager):
     # Pobieranie aktualnego stanu buildings z variable_manager
     buildings = variable_manager.variables.get('buildings', {})
     print(buildings)
