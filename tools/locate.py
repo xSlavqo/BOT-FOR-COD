@@ -34,7 +34,7 @@ def locate(path, threshold, max_search_time=2):
         time.sleep(0.3) 
     return False
 
-def locate_in_region(path, threshold, region, max_search_time=2):
+def locate_in_region(path, threshold, region, max_search_time=10):
     end_time = time.time() + max_search_time
     while time.time() < end_time:
         img = pyautogui.screenshot(region=region)

@@ -54,7 +54,7 @@ def execute_tasks(global_queue, variable_manager, variable_queue, stop_event):
     tasks = [
     ("tv_close", tv_close, 100, 0, True, False),        # False - nie przekazujemy argumentów
     ("cod", cod_run, 100, 0, True, False),              # False - nie przekazujemy argumentów
-    ("building_print", building_print, 100, 0, True, True),  # True - przekazujemy argumenty tylko tutaj
+    ("building_print", building_print, 100, 0, False, True),  # True - przekazujemy argumenty tylko tutaj
     ("rss_map", rss_map, 120, 0, False, False),         # False - nie przekazujemy argumentów
     ("hospital", hospital, 30, 7200, False, False),     # False - nie przekazujemy argumentów
     ("train_units", train_units, 200, 0, False, False), # False - nie przekazujemy argumentów

@@ -1,12 +1,11 @@
-import json
 import sys
 import tkinter as tk
-from queue import Empty
 from threading import Event, Thread
 from tkinter import ttk
 import keyboard
 import time
 from tools.functions import load_config, load_settings
+from tools.buildings_config import buildings_config
 from execute_tasks import execute_tasks
 from widgets import create_widgets
 from GUI_utils import init_buildings, VariableManager, StdoutRedirector, center_window_on_monitor, QueueManager
@@ -103,6 +102,9 @@ class BotGUI:
         self.queue_manager.put('global', "BOT zatrzymany!\n")
         if self.loop_thread is not None and self.loop_thread.is_alive():
             self.loop_thread.join()
+
+    def execute_action1(self):
+        buildings_config()
 
     def on_closing(self):
         self.stop_loop()

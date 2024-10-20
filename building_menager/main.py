@@ -1,7 +1,11 @@
+from building_menager.building_operations import BuildingOperations
+
+
 def building_print(variable_manager, queue_manager):
     # Pobieranie aktualnego stanu buildings z variable_manager
     buildings = variable_manager.variables.get('buildings', {})
-    print(buildings)
+    operations = BuildingOperations()
+    operations.check_level(buildings["center"])
 
     # Sprawdzanie i aktualizowanie poziomów budynków
     if "center" in buildings and buildings["center"].level >= 3:

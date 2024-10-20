@@ -28,5 +28,15 @@ def text(region, invert_colors=0, tolerance=254, blur_ksize=3):
     return text
 
 if __name__ == "__main__":
-    aha = text((1157, 320, 46, 25), invert_colors=1, tolerance=240, blur_ksize=1)
+    aha = text((1825, 207, 18, 18), invert_colors=1, tolerance=220, blur_ksize=1)
     print(aha)
+    aha = text((1801, 284, 15, 21), invert_colors=1, tolerance=220, blur_ksize=1)
+    print(aha)
+    aha = text((1784, 367, 18, 18), invert_colors=1, tolerance=220, blur_ksize=1)
+    print(aha)
+    aha = text((1774, 447, 22, 18), invert_colors=1, tolerance=220, blur_ksize=1)
+    print(aha)
+    aha = text((1778, 525, 18, 25), invert_colors=1, tolerance=220, blur_ksize=1)
+    print(aha)
+
+
