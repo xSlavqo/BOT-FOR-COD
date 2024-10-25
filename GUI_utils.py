@@ -1,81 +1,24 @@
-import threading
-import tkinter as tk
-from queue import Queue, Empty
-from screeninfo import get_monitors
-from building_menager.building import Building
+# gui_utils.py
+import json
 
-class StdoutRedirector:
-    def __init__(self, widget, queue):
-        self.widget = widget
-        self.queue = queue
+def save_checkbox_states(checkbox_list):
+    try:
+        with open('config.json', 'r') as file:
+            states = json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        states = {}
 
-    def write(self, txt):
-        self.queue.put(txt)
+    for checkbox in checkbox_list:
+        states[checkbox.objectName()] = checkbox.isChecked()
 
-    def flush(self):
+    with open('config.json', 'w') as file:
+        json.dump(states, file, indent=4)
+
+def load_checkbox_states(checkbox_list):
+    try:
+        with open('config.json', 'r') as file:
+            states = json.load(file)
+            for checkbox in checkbox_list:
+                checkbox.setChecked(states.get(checkbox.objectName(), False))
+    except (FileNotFoundError, json.JSONDecodeError):
         pass
-
-def center_window_on_monitor(window, monitor_index=0, width=1500, height=800):
-    monitors = get_monitors()
-    if monitor_index < len(monitors):
-        monitor = monitors[monitor_index]
-        x = monitor.x + (monitor.width - width) // 2
-        y = monitor.y + (monitor.height - height) // 2
-        window.geometry(f"{width}x{height}+{x}+{y}")
-
-class VariableManager:
-    def __init__(self, queue):
-        self.variables = {}
-        self.queue = queue
-
-    def process_queue(self):
-        while True:
-            data = self.queue.get()
-            if isinstance(data, tuple) and len(data) == 2:
-                name, value = data
-                self.variables[name] = value
-            elif data is None:
-                break
-
-    def start(self):
-        threading.Thread(target=self.process_queue, daemon=True).start()
-
-class QueueManager:
-    def __init__(self):
-        self.queues = {}
-
-    def create_queue(self, name):
-        self.queues[name] = Queue()
-        print(f"Kolejka '{name}' utworzona!")
-
-    def get_queue(self, name):
-        return self.queues.get(name)
-
-    def put(self, name, data):
-        if name in self.queues:
-            self.queues[name].put(data)
-
-    def get(self, name, timeout=1):
-        if name in self.queues:
-            try:
-                return self.queues[name].get(timeout=timeout)
-            except Empty:
-                return None
-
-    def process_global_queue(self, terminal_widget):
-        try:
-            while True:
-                msg = self.queues['global'].get_nowait()
-                terminal_widget.config(state=tk.NORMAL)
-                terminal_widget.insert(tk.END, msg)
-                terminal_widget.config(state=tk.DISABLED)
-                terminal_widget.see(tk.END)
-        except Empty:
-            pass
-
-def init_buildings(variable_manager, variable_queue):
-    building_names = ["center", "buildings", "labo", "vest", "arch", "inf", "cav", "cele"]
-    buildings = {name: Building(name=name) for name in building_names}
-
-    variable_queue.put(('buildings', buildings))
-    print("Budynki utworzone!")
