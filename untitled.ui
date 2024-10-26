@@ -196,11 +196,70 @@
      <bool>true</bool>
     </property>
    </widget>
+   <widget class="QPushButton" name="pushButton_start">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>20</y>
+      <width>180</width>
+      <height>42</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Uruchom bota</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_stop">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>20</y>
+      <width>180</width>
+      <height>40</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>Zatrzymaj bota</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton_config">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>20</y>
+      <width>180</width>
+      <height>40</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Kofiguruj położenie budynków</string>
+    </property>
+   </widget>
    <zorder>label</zorder>
    <zorder>checkBox_woodmap</zorder>
    <zorder>checkBox_manamap</zorder>
    <zorder>checkBox_goldmap</zorder>
    <zorder>checkBox_stonemap</zorder>
+   <zorder>pushButton_start</zorder>
+   <zorder>pushButton_stop</zorder>
+   <zorder>pushButton_config</zorder>
   </widget>
  </widget>
  <resources/>

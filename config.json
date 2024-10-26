@@ -1,0 +1,38 @@
+{
+    "center": {
+        "X": 1349,
+        "Y": 446
+    },
+    "buildings": {
+        "X": 1112,
+        "Y": 408
+    },
+    "labo": {
+        "X": 917,
+        "Y": 321
+    },
+    "vest": {
+        "X": 1116,
+        "Y": 242
+    },
+    "arch": {
+        "X": 1341,
+        "Y": 268
+    },
+    "inf": {
+        "X": 1448,
+        "Y": 370
+    },
+    "cav": {
+        "X": 1541,
+        "Y": 630
+    },
+    "cele": {
+        "X": 1177,
+        "Y": 714
+    },
+    "checkBox_goldmap": false,
+    "checkBox_woodmap": false,
+    "checkBox_stonemap": true,
+    "checkBox_manamap": true
+}
