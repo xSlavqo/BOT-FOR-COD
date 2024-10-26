@@ -14,7 +14,7 @@ def is_image_match(img, template, threshold):
     matches = list(zip(*np.where(correlation >= threshold)[::-1]))
     return matches, max_val
 
-def locate_helper(template_path, threshold, max_time, click_center):
+def locate(template_path, threshold, max_time, click_center):
     cod_window = gw.getWindowsWithTitle("Call of Dragons")
     if not cod_window:
         print("Nie znaleziono okna: Call of Dragons")
@@ -48,5 +48,5 @@ def locate_helper(template_path, threshold, max_time, click_center):
     return False
 
 if __name__ == "__main__":
-    result = locate_helper("png/city.png", 0.99, 5, False)
+    result = locate("png/city.png", 0.99, 5, False)
     print(f"Obraz znaleziony: {result}")
