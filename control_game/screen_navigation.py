@@ -2,7 +2,7 @@
 
 import pyautogui
 import time
-from utils.locate import *
+from utils.locate import locate
 
 def check_and_navigate(target_image, alt_image):
     if locate(target_image, 0.99, 3):
@@ -17,21 +17,22 @@ def check_and_navigate(target_image, alt_image):
         return check_and_navigate(target_image, alt_image)
 
 def city():
-    return check_and_navigate("pngs/city", "pngs/map")
+    return check_and_navigate("png/city.png", "png/map.png")
 
 def map():
-    return check_and_navigate("pngs/map", "pngs/city")
+    return check_and_navigate("png/map.png", "png/city.png")
 
 def main_screen():
-    while not (locate("pngs/map", 0.99, 3) or locate("pngs/city", 0.99, 3)):
+    while not (locate("png/map.png", 0.99, 3) or locate("png/city.png", 0.99, 3)):
         pyautogui.press("esc")
         time.sleep(1)
     return True
 
 def ally_menu():
-    if not locate("pngs/ally_menu.png", 0.99, 3):
+    if not locate("png/ally_menu.png", 0.99, 3):
         main_screen()
         pyautogui.press("o")
         time.sleep(1)
         return ally_menu()
     return True
+

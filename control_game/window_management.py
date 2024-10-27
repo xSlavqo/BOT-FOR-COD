@@ -14,12 +14,13 @@ def cod_run():
         subprocess.Popen(program_path)
         launcher_window = gw.getWindowsWithTitle("launcher")
         while not launcher_window:
-            launcher_window = gw.getWindowsWithTitle("launcher")
+            print("Nie znaleziona launchera gry!")
         launcher_window[0].activate()
-        while not locate("pngs/game_start.png", 0.99, 10):
-            time.sleep(1)
-        while not locate("pngs/city", 0.99):
-            time.sleep(1)
+        if not locate("png/game_start.png", 0.99, 10, True):
+            print("Problem z znalezieniem przycisku uruchom!")
+        time.sleep(10)
+        if not locate("png/city.png", 0.99, 60):
+            print("Gra nie chce się załadować!")
     
     cod_window = gw.getWindowsWithTitle("Call of Dragons")
     cod_window[0].activate()

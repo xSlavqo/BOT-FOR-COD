@@ -2,7 +2,6 @@
 import cv2
 import numpy as np
 import mss
-import pygetwindow as gw
 import time
 import pyautogui
 
@@ -14,24 +13,13 @@ def is_image_match(img, template, threshold):
     matches = list(zip(*np.where(correlation >= threshold)[::-1]))
     return matches, max_val
 
-def locate(template_path, threshold, max_time, click_center):
-    cod_window = gw.getWindowsWithTitle("Call of Dragons")
-    if not cod_window:
-        print("Nie znaleziono okna: Call of Dragons")
-        return False
-
-    cod_window[0].activate()  # Aktywacja okna
-
+def locate(template_path, threshold, max_time=5, click_center=False):
+    # Wczytanie obrazu szablonu z kanałem alfa
     template = cv2.imread(template_path, cv2.IMREAD_UNCHANGED)
     start_time = time.time()
     
     with mss.mss() as sct:
-        monitor = {
-            "top": cod_window[0].top,
-            "left": cod_window[0].left,
-            "width": cod_window[0].width,
-            "height": cod_window[0].height
-        }
+        monitor = sct.monitors[2]  # Ustawienie na cały pierwszy monitor
         while time.time() - start_time < max_time:
             screen_shot = sct.grab(monitor)
             img = np.array(screen_shot)
@@ -48,5 +36,5 @@ def locate(template_path, threshold, max_time, click_center):
     return False
 
 if __name__ == "__main__":
-    result = locate("png/city.png", 0.99, 5, False)
+    result = locate("stay/stay.png", 0.99, 5, False)
     print(f"Obraz znaleziony: {result}")
