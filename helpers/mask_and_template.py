@@ -53,7 +53,7 @@ def utworz_i_zastosuj_maske(directory, threshold_value=30):
         print(f"Wystąpił błąd: {e}")
 
 # Przykładowe użycie
-directory = "stay"
+directory = "png_tester/t"
 threshold_value = 1
 
 utworz_i_zastosuj_maske(directory, threshold_value)

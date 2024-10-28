@@ -2,15 +2,16 @@
 import cv2
 import numpy as np
 import mss
+import pygetwindow as gw
 
 def is_image_match(img, template, threshold):
     base = template[:, :, :3]
     alpha_mask = cv2.merge([template[:, :, 3]] * 3)
     correlation = cv2.matchTemplate(img, base, cv2.TM_CCORR_NORMED, mask=alpha_mask)
-    max_val = correlation.max()  # Najlepsze dopasowanie, nawet poniżej progu
+    max_val = correlation.max()
     matches = list(zip(*np.where(correlation >= threshold)[::-1]))
-    match_values = correlation[correlation >= threshold]  # Wartości podobieństwa dla trafień powyżej progu
-    return matches, match_values, max_val
+    match_values = correlation[correlation >= threshold]
+    return matches, match_values, max_val, correlation  # Zwracamy również 'correlation'
 
 def filter_overlapping_matches(matches, template_shape):
     filtered_matches = []
@@ -18,77 +19,63 @@ def filter_overlapping_matches(matches, template_shape):
         top_left = match
         bottom_right = (top_left[0] + template_shape[1], top_left[1] + template_shape[0])
 
-        # Sprawdzenie, czy dopasowanie nachodzi na inne zapisane wcześniej dopasowania
         if not any(
             (top_left[0] < m[1] and bottom_right[0] > m[0] and top_left[1] < m[3] and bottom_right[1] > m[2])
             for m in filtered_matches
         ):
             filtered_matches.append((top_left[0], bottom_right[0], top_left[1], bottom_right[1]))
 
-    return filtered_matches  # Zwracamy pełne regiony dopasowań
+    return [(m[0], m[2]) for m in filtered_matches]
 
-def locate_and_draw_matches(img, template, threshold, search_regions):
-    all_filtered_matches = []
-    all_match_values = []
-    max_similarity = 0  # Inicjalizacja maksymalnego dopasowania poza progiem
+def locate_and_draw_matches(img, template, threshold):
+    matches, match_values, max_val, correlation = is_image_match(img, template, threshold)
+    filtered_matches = filter_overlapping_matches(matches, template.shape)
 
-    for region in search_regions:
-        # Wycięcie regionu z obrazu
-        cropped_img = img[
-            region["top"]:region["top"] + region["height"],
-            region["left"]:region["left"] + region["width"]
-        ]
+    print("Regiony wystąpień dopasowań:")
+    max_similarity = match_values.max() if len(match_values) > 0 else max_val
+    min_similarity = match_values.min() if len(match_values) > 0 else 0
+    total_matches = len(filtered_matches)
 
-        matches, match_values, max_val = is_image_match(cropped_img, template, threshold)
-        filtered_matches = filter_overlapping_matches(matches, template.shape)
+    for top_left in filtered_matches:
+        bottom_right = (top_left[0] + template.shape[1], top_left[1] + template.shape[0])
+        print(f"Top-left: {top_left}, Bottom-right: {bottom_right}")
+        cv2.rectangle(img, top_left, bottom_right, (0, 255, 0), 3)
 
-        # Aktualizacja wartości maksymalnego dopasowania nawet poza progiem
-        max_similarity = max(max_similarity, max_val)
+    max_matches = [(x, y) for (x, y) in filtered_matches if correlation[y, x] == max_similarity]
 
-        # Dodajemy przesunięcie regionu do znalezionych punktów
-        for match, value in zip(filtered_matches, match_values):
-            adjusted_match = (match[0] + region["left"], match[1] + region["top"])
-            all_filtered_matches.append(adjusted_match)
-            all_match_values.append(value)
-            cv2.rectangle(
-                img,
-                adjusted_match,
-                (adjusted_match[0] + template.shape[1], adjusted_match[1] + template.shape[0]),
-                (0, 255, 0), 3
-            )
+    print("\nMaksymalne dopasowania (w progu):")
+    for top_left in max_matches:
+        print(f"Top-left: {top_left}")
 
-    # Drukowanie wartości dopasowania dla każdego znalezionego dopasowania
-    if all_match_values:
-        print("Wartości dopasowań dla znalezionych obiektów:")
-        for idx, value in enumerate(all_match_values, start=1):
-            print(f"Dopasowanie {idx}: {value:.10f}")
-    else:
-        print(f"Brak dopasowań powyżej progu. Najlepsze dopasowanie: {max_similarity:.10f}")
+    return img, max_similarity, min_similarity, total_matches
 
-    total_matches = len(all_filtered_matches)
-    return img, max_similarity, total_matches
+def locate_helper(template_path, threshold):
+    cod_window = gw.getWindowsWithTitle("Call of Dragons")
+    if not cod_window:
+        print("Nie znaleziono okna: Call of Dragons")
+        return
 
-def locate_helper(template_path, threshold, search_regions=None):
+    cod_window[0].activate()
+
     template = cv2.imread(template_path, cv2.IMREAD_UNCHANGED)
-
-    # Przygotowanie pełnego regionu monitora
+    
     with mss.mss() as sct:
-        monitor = sct.monitors[2]  # Ustawienie na cały pierwszy monitor
-
+        monitor = {
+            "top": cod_window[0].top,
+            "left": cod_window[0].left,
+            "width": cod_window[0].width,
+            "height": cod_window[0].height
+        }
         while True:
             screen_shot = sct.grab(monitor)
             img = np.array(screen_shot)
             img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
 
-            # Przeszukiwanie ograniczonych regionów
-            img_with_match, max_similarity, total_matches = locate_and_draw_matches(
-                img, template, threshold, search_regions
-            )
-            print(f"Maksymalne podobieństwo znalezione poza progiem (jeśli brak dopasowań): {max_similarity:.10f} | Łączna liczba dopasowań: {total_matches}")
+            img_with_match, max_similarity, min_similarity, total_matches = locate_and_draw_matches(img, template, threshold)
+            print(f"Maksymalne podobieństwo: {max_similarity:.10f} | Minimalne trafienie: {min_similarity:.10f} | Łączna liczba dopasowań: {total_matches}")
 
-            # Skala podglądu tylko do wyświetlenia
             img_resized = cv2.resize(img_with_match, None, fx=0.75, fy=0.75, interpolation=cv2.INTER_AREA)
-            cv2.imshow("Podgląd", img_resized)
+            cv2.imshow("Call of Dragons", img_resized)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
@@ -96,6 +83,4 @@ def locate_helper(template_path, threshold, search_regions=None):
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    search_regions = []
-    
-    locate_helper("png/city.png", 0.97, search_regions=search_regions)
+    locate_helper("r.png", 0.9999)

@@ -1,48 +1,46 @@
 import cv2
 from PIL import ImageGrab
 import numpy as np
-import time
+import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
 
 regions = []
 drawing = False
 ix, iy = -1, -1
 
-def select_region(event, x, y, flags, param):
-    global ix, iy, drawing, regions, img
-
-    if event == cv2.EVENT_LBUTTONDOWN:
+def on_mouse_press(event):
+    global ix, iy, drawing
+    if event.inaxes:
         drawing = True
-        ix, iy = x, y
+        ix, iy = int(event.xdata), int(event.ydata)
 
-    elif event == cv2.EVENT_MOUSEMOVE:
-        if drawing:
-            img2 = img.copy()
-            cv2.rectangle(img2, (ix, iy), (x, y), (0, 255, 0), 2)
-            cv2.imshow('image', img2)
-
-    elif event == cv2.EVENT_LBUTTONUP:
+def on_mouse_release(event):
+    global ix, iy, drawing, regions, ax, img
+    if event.inaxes and drawing:
+        x, y = int(event.xdata), int(event.ydata)
+        width, height = x - ix, y - iy
+        regions.append((ix, iy, width, height))
+        rect = Rectangle((ix, iy), width, height, linewidth=2, edgecolor='g', facecolor='none')
+        ax.add_patch(rect)
+        fig.canvas.draw()
         drawing = False
-        cv2.rectangle(img, (ix, iy), (x, y), (0, 255, 0), 2)
-        regions.append((ix, iy, x - ix, y - iy))
-        cv2.imshow('image', img)
 
 def capture_screenshot_and_define_regions():
-    global img
+    global img, ax, fig
     screenshot = ImageGrab.grab()
     screenshot_np = np.array(screenshot)
     img = cv2.cvtColor(screenshot_np, cv2.COLOR_BGR2RGB)
 
-    cv2.namedWindow('image')
-    cv2.setMouseCallback('image', select_region)
-
-    cv2.imshow('image', img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    fig, ax = plt.subplots()
+    ax.imshow(img)
+    fig.canvas.mpl_connect('button_press_event', on_mouse_press)
+    fig.canvas.mpl_connect('button_release_event', on_mouse_release)
+    plt.show()
 
     return regions
 
 if __name__ == "__main__":
-
+    import time
     time.sleep(2)
     selected_regions = capture_screenshot_and_define_regions()
     print(f'Zaznaczone regiony: {selected_regions}')
