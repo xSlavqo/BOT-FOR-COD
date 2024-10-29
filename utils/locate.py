@@ -4,6 +4,7 @@ import numpy as np
 import mss
 import time
 import pyautogui
+import random
 
 def is_image_match(img, template, threshold):
     base = template[:, :, :3]
@@ -28,9 +29,14 @@ def locate(template_path, threshold, max_time=5, click_center=False):
             matches, _ = is_image_match(img, template, threshold)
             if matches:
                 if click_center:
+                    # Dodanie losowej zwłoki przed kliknięciem
+                    time.sleep(random.uniform(0.5, 1.5))
                     center_x = matches[0][0] + template.shape[1] // 2
                     center_y = matches[0][1] + template.shape[0] // 2
                     pyautogui.click(center_x + monitor["left"], center_y + monitor["top"])
+                
+                # Losowe opóźnienie od 1.5 do 3 sekund
+                time.sleep(random.uniform(1.5, 3))
                 return True
 
     return False

@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import mss
 import pygetwindow as gw
+import time
 
 def is_image_match(img, template, threshold):
     base = template[:, :, :3]
@@ -11,7 +12,7 @@ def is_image_match(img, template, threshold):
     max_val = correlation.max()
     matches = list(zip(*np.where(correlation >= threshold)[::-1]))
     match_values = correlation[correlation >= threshold]
-    return matches, match_values, max_val, correlation  # Zwracamy również 'correlation'
+    return matches, match_values, max_val, correlation
 
 def filter_overlapping_matches(matches, template_shape):
     filtered_matches = []
@@ -32,8 +33,8 @@ def locate_and_draw_matches(img, template, threshold):
     filtered_matches = filter_overlapping_matches(matches, template.shape)
 
     print("Regiony wystąpień dopasowań:")
-    max_similarity = match_values.max() if len(match_values) > 0 else max_val
-    min_similarity = match_values.min() if len(match_values) > 0 else 0
+    max_similarity = match_values.max() if match_values.size > 0 else max_val
+    min_similarity = match_values.min() if match_values.size > 0 else 0
     total_matches = len(filtered_matches)
 
     for top_left in filtered_matches:
@@ -58,6 +59,9 @@ def locate_helper(template_path, threshold):
     cod_window[0].activate()
 
     template = cv2.imread(template_path, cv2.IMREAD_UNCHANGED)
+    if template is None:
+        print("Błąd: nie udało się wczytać szablonu. Sprawdź ścieżkę do pliku.")
+        return
     
     with mss.mss() as sct:
         monitor = {
@@ -75,12 +79,17 @@ def locate_helper(template_path, threshold):
             print(f"Maksymalne podobieństwo: {max_similarity:.10f} | Minimalne trafienie: {min_similarity:.10f} | Łączna liczba dopasowań: {total_matches}")
 
             img_resized = cv2.resize(img_with_match, None, fx=0.75, fy=0.75, interpolation=cv2.INTER_AREA)
+
+            # Dodaj dodatkowy komunikat przed wywołaniem imshow
+            print("Wyświetlanie obrazu podglądu...")
             cv2.imshow("Call of Dragons", img_resized)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
+            time.sleep(0.1)  # Dodaj krótkie opóźnienie, aby zmniejszyć obciążenie procesora
+
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    locate_helper("r.png", 0.9999)
+    locate_helper("png/help_ask.png", 0.98)
