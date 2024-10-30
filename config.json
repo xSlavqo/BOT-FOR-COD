@@ -31,8 +31,8 @@
         "X": 1177,
         "Y": 714
     },
-    "checkBox_goldmap": false,
-    "checkBox_woodmap": false,
-    "checkBox_stonemap": true,
-    "checkBox_manamap": true
+    "checkBox_goldmap": true,
+    "checkBox_woodmap": true,
+    "checkBox_stonemap": false,
+    "checkBox_manamap": false
 }

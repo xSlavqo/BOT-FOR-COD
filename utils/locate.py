@@ -36,7 +36,7 @@ def locate(template_path, threshold, max_time=5, click_center=False):
                     pyautogui.click(center_x + monitor["left"], center_y + monitor["top"])
                 
                 # Losowe opóźnienie od 1.5 do 3 sekund
-                time.sleep(random.uniform(1.5, 3))
+                time.sleep(random.uniform(0.7, 1.6))
                 return True
 
     return False
