@@ -6,9 +6,11 @@ import pyautogui
 from gui_utils import get_checkbox_state
 from legions_status.legions import legions
 from control_game.screen_navigation import *
+from control_game.window_management import cod_run
 from utils.locate import locate
 
 def rss():
+    cod_run()
     for _ in range(legions()):
         map()
         time.sleep(1)
@@ -16,8 +18,6 @@ def rss():
         time.sleep(1)
         rss_type()
         locate("png/rss_find.png", 0.99, 5, True)
-        pyautogui.moveTo(1, 1)
-        time.sleep(2)
         if locate("png/rss_find.png", 0.99):
             pyautogui.press("esc")
             continue
@@ -32,13 +32,11 @@ def rss():
         if not locate("png/make_legion.png", 0.99, 5, True):
             pyautogui.press("esc")
             continue
-        time.sleep(1)
         locate("png/one_hero.png", 0.99, 5, True)
-        time.sleep(1)
         locate("png/march.png", 0.99, 5, True)
-        time.sleep(1)
     
 def rss_type():
+    print("type")
     selected_resources = []
     
     # Sprawdzamy stany checkboxów i dodajemy odpowiednie wartości do listy

@@ -27,7 +27,7 @@ def text_locator(template_path, target_word):
         
         if found:
             print(f"Znaleziono dopasowanie! Środek: {center_coords}") 
-            return center_coords  # Zwracamy koordynaty do PyAutoGUI
+            return center_coords
         else:
             print("Nie znaleziono dopasowania z podanym słowem.")
             return None
