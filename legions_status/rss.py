@@ -10,34 +10,30 @@ from utils.locate import locate
 
 def rss():
     for _ in range(legions()):
-        map()
+        if not map():
+            return False
         time.sleep(1)
         pyautogui.press("f")
         time.sleep(1)
-        rss_type()
-        locate("png/rss_find.png", 0.99, 5, True)
-        if locate("png/rss_find.png", 0.99):
-            pyautogui.press("esc")
-            continue
-        pyautogui.mouseDown(960, 540)
-        pyautogui.mouseUp(960, 540) 
-        time.sleep(0.2)
-        pyautogui.mouseDown(960, 540)
-        pyautogui.mouseUp(960, 540)
-        time.sleep(1)
+        if not rss_type():
+            return False
+        for _ in range(2):
+            pyautogui.mouseDown(960, 540)
+            pyautogui.mouseUp(960, 540)
+            time.sleep(0.2 )
         if not locate("png/rss_gather.png", 0.99, 5, True):
             continue
         if not locate("png/make_legion.png", 0.99, 5, True):
-            pyautogui.press("esc")
-            continue
+            return False
         locate("png/one_hero.png", 0.99, 5, True)
-        locate("png/march.png", 0.99, 5, True)
+        if not locate("png/march.png", 0.99, 5, True):
+            return False
+        return True
     
+
 def rss_type():
-    print("type")
     selected_resources = []
     
-    # Sprawdzamy stany checkboxów i dodajemy odpowiednie wartości do listy
     if get_checkbox_state("checkBox_goldmap"):
         selected_resources.append(1)
     if get_checkbox_state("checkBox_woodmap"):
@@ -47,17 +43,36 @@ def rss_type():
     if get_checkbox_state("checkBox_manamap"):
         selected_resources.append(4)
     
-    # Jeśli żaden checkbox nie jest zaznaczony, wybieramy wszystkie
     if not selected_resources:
-        selected_resources = [1, 2, 3, 4]
+        print("Brak dostępnych zasobów do wyboru.")
+        return False
     
-    # Losowy wybór i wykonanie kliknięcia na podstawie wybranego zasobu
-    selected_option = random.choice(selected_resources)
-    if selected_option == 1:
-        pyautogui.click(735, 1005)
-    elif selected_option == 2:
-        pyautogui.click(955, 1005)
-    elif selected_option == 3:
-        pyautogui.click(1175, 1005)
-    elif selected_option == 4:
-        pyautogui.click(1395, 1005)
+    tried_resources = set()
+    
+    while len(tried_resources) < len(selected_resources):
+        selected_option = random.choice([opt for opt in selected_resources if opt not in tried_resources])
+        tried_resources.add(selected_option)
+        
+        if selected_option == 1:
+            pyautogui.click(735, 1005)
+        elif selected_option == 2:
+            pyautogui.click(955, 1005)
+        elif selected_option == 3:
+            pyautogui.click(1175, 1005)
+        elif selected_option == 4:
+            pyautogui.click(1395, 1005)
+        
+        if locate("png/rss_find.png", 0.99, 5, True):
+            time.sleep(1)
+            if locate("png/rss_find.png", 0.99, 5, True):
+                if len(selected_resources) == 1:
+                    print("Nie udało się wybrać zasobu do zbierania, brak innych opcji.")
+                    return False
+                print("Odnaleziono ponownie opcję zbierania, losowanie innego zasobu.")
+            else:
+                return True
+        else:
+            return True
+    
+    print("Nie udało się wybrać zasobu do zbierania.")
+    return False

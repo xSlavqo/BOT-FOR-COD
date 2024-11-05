@@ -31,9 +31,9 @@
         "X": 1608,
         "Y": 333
     },
-    "checkBox_woodmap": true,
+    "checkBox_woodmap": false,
     "checkBox_manamap": false,
-    "checkBox_goldmap": true,
+    "checkBox_goldmap": false,
     "checkBox_stonemap": false,
     "checkBox_research": false,
     "checkBox_heal": true,

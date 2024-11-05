@@ -9,7 +9,7 @@ def text_locator(template_path, target_word):
     template = cv2.imread(template_path, cv2.IMREAD_UNCHANGED)
     if template is None:
         print("Błąd wczytywania szablonu.")
-        return None
+        return True  # Zwróć True, aby wskazać, że nie odnaleziono
 
     with mss.mss() as sct:
         # Ustawienie monitora na pierwszy dostępny, jeśli monitor o indeksie 2 nie istnieje
@@ -25,7 +25,7 @@ def text_locator(template_path, target_word):
         if found:
             return center_coords
         else:
-            return None
+            return True  # Zwróć True, gdy nie odnaleziono koordynatów
 
 def get_best_match_location(img, template):
     base, mask = template[:, :, :3], cv2.merge([template[:, :, 3]] * 3)

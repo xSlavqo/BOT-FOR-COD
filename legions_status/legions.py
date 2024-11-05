@@ -11,7 +11,6 @@ def legions_menu():
     if not locate("png/legions/legions.png", 0.999):
         main_screen()
         pyautogui.press("j")
-        time.sleep(2)
         if not locate("png/legions/legions.png", 0.999):
             return False
     return True
