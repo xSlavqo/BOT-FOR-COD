@@ -6,11 +6,9 @@ import pyautogui
 from gui_utils import get_checkbox_state
 from legions_status.legions import legions
 from control_game.screen_navigation import *
-from control_game.window_management import cod_run
 from utils.locate import locate
 
 def rss():
-    cod_run()
     for _ in range(legions()):
         map()
         time.sleep(1)

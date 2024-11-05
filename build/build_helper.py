@@ -2,34 +2,29 @@
 import cv2
 import numpy as np
 import mss
-import pygetwindow as gw
 import pytesseract
 
 def text_locator(template_path, target_word):
-    game_window = gw.getWindowsWithTitle("Call of Dragons")
-    if not game_window:
-        print("Nie znaleziono okna gry.")
-        return None
-
-    game_window[0].activate()
+    # Wczytanie obrazu szablonu z kanałem alfa
     template = cv2.imread(template_path, cv2.IMREAD_UNCHANGED)
     if template is None:
         print("Błąd wczytywania szablonu.")
         return None
 
     with mss.mss() as sct:
-        monitor = {"top": game_window[0].top, "left": game_window[0].left,
-                   "width": game_window[0].width, "height": game_window[0].height}
+        # Ustawienie monitora na pierwszy dostępny, jeśli monitor o indeksie 2 nie istnieje
+        monitor = sct.monitors[2] if len(sct.monitors) > 2 else sct.monitors[1]
+        
+        # Przechwycenie obrazu ekranu z wybranego monitora
         img = cv2.cvtColor(np.array(sct.grab(monitor)), cv2.COLOR_BGRA2BGR)
 
+        # Znajdowanie najlepszego dopasowania
         match_coords = get_best_match_location(img, template)
         found, center_coords = expand_and_extract_text(img, match_coords, target_word)
         
         if found:
-            print(f"Znaleziono dopasowanie! Środek: {center_coords}") 
             return center_coords
         else:
-            print("Nie znaleziono dopasowania z podanym słowem.")
             return None
 
 def get_best_match_location(img, template):

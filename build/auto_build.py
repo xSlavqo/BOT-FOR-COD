@@ -1,9 +1,13 @@
 # auto_build.py
 import pyautogui
+import time
+from control_game.screen_navigation import *
 from build.build_helper import text_locator
 from utils.locate import locate
 
 def auto_build():
+    city()
+    time.sleep(1)
     if (coords := text_locator("png/build/build1.png", "buduj")):
         pyautogui.mouseDown(coords[0], coords[1] + 40); pyautogui.mouseUp()
         locate("png/build/build2.png", 0.95, 5, True)
@@ -16,4 +20,4 @@ def auto_build():
             locate("png/build/build5.png", 0.95, 5, True)
         while not False:
             while locate("png/build/help_ask.png", 0.95, 5, True): return
-        
+    return

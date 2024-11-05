@@ -12,6 +12,7 @@ def cod_run():
 
     if not cod_window:
         subprocess.Popen(program_path)
+        time.sleep(1)
         launcher_window = gw.getWindowsWithTitle("launcher")
         while not launcher_window:
             print("Nie znaleziona launchera gry!")

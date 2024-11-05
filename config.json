@@ -31,19 +31,19 @@
         "X": 1608,
         "Y": 333
     },
-    "checkBox_woodmap": false,
+    "checkBox_woodmap": true,
     "checkBox_manamap": false,
-    "checkBox_goldmap": false,
+    "checkBox_goldmap": true,
     "checkBox_stonemap": false,
     "checkBox_research": false,
-    "checkBox_heal": false,
-    "checkBox_autobuild": false,
+    "checkBox_heal": true,
+    "checkBox_autobuild": true,
     "checkBox_1": false,
     "checkBox_autobuild_2": false,
     "checkBox_autobuild_3": false,
-    "checkBox_autobuild_4": true,
+    "checkBox_autobuild_4": false,
     "checkBox_autobuild_5": false,
     "checkBox_autobuild_6": false,
-    "lineEdit_delay": "50",
-    "lineEdit_restart": "50"
+    "lineEdit_delay": "",
+    "lineEdit_restart": ""
 }

@@ -20,7 +20,9 @@ def locate(template_path, threshold, max_time=5, click_center=False):
     start_time = time.time()
     
     with mss.mss() as sct:
-        monitor = sct.monitors[2]  # Ustawienie na cały pierwszy monitor
+        # Ustawienie monitora na pierwszy dostępny, jeśli monitor o indeksie 2 nie istnieje
+        monitor = sct.monitors[2] if len(sct.monitors) > 2 else sct.monitors[1]
+        
         while time.time() - start_time < max_time:
             screen_shot = sct.grab(monitor)
             img = np.array(screen_shot)
@@ -40,6 +42,7 @@ def locate(template_path, threshold, max_time=5, click_center=False):
                 return True
 
     return False
+
 
 if __name__ == "__main__":
     result = locate("stay/stay.png", 0.99, 5, False)
