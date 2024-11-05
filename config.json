@@ -36,7 +36,7 @@
     "checkBox_goldmap": false,
     "checkBox_stonemap": false,
     "checkBox_research": false,
-    "checkBox_heal": true,
+    "checkBox_heal": false,
     "checkBox_autobuild": true,
     "checkBox_1": false,
     "checkBox_autobuild_2": false,

@@ -9,9 +9,9 @@ def auto_build():
     if not city():
         return False
     time.sleep(1)
-    if (coords := text_locator("png/build/build1.png", "buduj")):
+    if not text_locator("png/build/build1.png", "buduj"):
+        print("nope")
         return True
-    pyautogui.mouseDown(coords[0], coords[1] + 40); pyautogui.mouseUp()
     if not locate("png/build/build2.png", 0.95, 5, True):
         return False
     if not locate("png/build/build3.png", 0.95, 5, True):
@@ -21,13 +21,11 @@ def auto_build():
         if not locate("png/build/build_new.png", 0.95, 5, True):
             return False
     else:
-        if not locate("png/build/build4.png", 0.95, 5, True):
-            return False
         if not locate("png/build/build5.png", 0.95, 5, True):
             return False
         
     click_count = 0
-    while click_count < 3 and locate("png/build/help_ask.png", 0.95, 5, True):
+    while click_count < 3 and locate("png/build/help_ask.png", 0.95, 2, True):
         click_count += 1
         time.sleep(0.5)
 
