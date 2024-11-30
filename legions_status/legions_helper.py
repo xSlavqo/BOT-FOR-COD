@@ -6,6 +6,8 @@ import mss
 import pytesseract
 import re
 import time
+from pygetwindow import getWindowsWithTitle
+from screeninfo import get_monitors
 
 def is_image_match(img, template, threshold):
     # Sprawdzenie, czy template ma kanał alfa, jeśli nie, maska będzie None
@@ -25,10 +27,30 @@ def locate_and_read_legions_status(template_path="png/legions/legions.png", thre
         print(f"Błąd: Nie udało się wczytać pliku '{template_path}'. Sprawdź ścieżkę i plik.")
         return None
     
-    start_time = time.time()
+    # Znajdowanie okna Call of Dragons
+    windows = getWindowsWithTitle("Call of Dragons")
+    if not windows:
+        print("Okno 'Call of Dragons' nie zostało znalezione.")
+        return None
+
+    # Pobranie okna i jego współrzędnych
+    window = windows[0]
+    win_x, win_y = window.left, window.top
+    win_w, win_h = window.width, window.height
 
     with mss.mss() as sct:
-        monitor = sct.monitors[2]
+        # Znalezienie monitora, na którym jest okno
+        monitor = None
+        for mon in get_monitors():
+            if mon.x <= win_x < mon.x + mon.width and mon.y <= win_y < mon.y + mon.height:
+                monitor = {"top": win_y, "left": win_x, "width": win_w, "height": win_h}
+                break
+        
+        if not monitor:
+            print("Nie znaleziono odpowiedniego monitora dla okna.")
+            return None
+
+        start_time = time.time()
         while time.time() - start_time < max_time:
             screen_shot = sct.grab(monitor)
             img = cv2.cvtColor(np.array(screen_shot), cv2.COLOR_BGRA2BGR)

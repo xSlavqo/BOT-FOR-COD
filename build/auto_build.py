@@ -10,11 +10,10 @@ def auto_build():
         return False
     time.sleep(1)
     if not text_locator("png/build/build1.png", "buduj"):
-        print("nope")
         return True
     if not locate("png/build/build2.png", 0.95, 5, True):
         return False
-    if not locate("png/build/build3.png", 0.95, 5, True):
+    if not locate("png/build/build3.png", 0.98, 5, True):
         return False
     if not locate ("png/build/build4.png", 0.99, 5, True):
         pyautogui.mouseDown(292, 792); pyautogui.mouseUp(292, 792)

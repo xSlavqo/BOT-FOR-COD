@@ -12,9 +12,7 @@ def check_hospital():
                 pyautogui.press("esc")
                 return True
             else:
-                print("Nie udało się odnaleźć przycisku leczenia!")
                 return False
         else:
-            print("Brak jednostek do leczenia.")
             return True
     return False

@@ -222,10 +222,10 @@
    <widget class="QTextEdit" name="textEdit_logs">
     <property name="geometry">
      <rect>
-      <x>890</x>
-      <y>10</y>
-      <width>301</width>
-      <height>831</height>
+      <x>10</x>
+      <y>610</y>
+      <width>1181</width>
+      <height>231</height>
      </rect>
     </property>
    </widget>
@@ -554,7 +554,7 @@
     <property name="geometry">
      <rect>
       <x>800</x>
-      <y>10</y>
+      <y>80</y>
       <width>81</width>
       <height>31</height>
      </rect>
@@ -572,7 +572,7 @@
     <property name="geometry">
      <rect>
       <x>800</x>
-      <y>50</y>
+      <y>120</y>
       <width>81</width>
       <height>31</height>
      </rect>
@@ -652,6 +652,40 @@
      <bool>true</bool>
     </property>
    </widget>
+   <widget class="QCheckBox" name="checkBox_autostart">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>20</y>
+      <width>175</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
+      <underline>false</underline>
+      <strikeout>false</strikeout>
+     </font>
+    </property>
+    <property name="layoutDirection">
+     <enum>Qt::LeftToRight</enum>
+    </property>
+    <property name="text">
+     <string>Autostart bota</string>
+    </property>
+    <property name="shortcut">
+     <string/>
+    </property>
+    <property name="autoRepeat">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <zorder>label_2</zorder>
+   <zorder>label</zorder>
    <zorder>checkBox_woodmap</zorder>
    <zorder>checkBox_manamap</zorder>
    <zorder>checkBox_goldmap</zorder>
@@ -672,6 +706,7 @@
    <zorder>checkBox_autobuild_6</zorder>
    <zorder>lineEdit_delay</zorder>
    <zorder>lineEdit_restart</zorder>
+   <zorder>checkBox_autostart</zorder>
   </widget>
  </widget>
  <resources/>

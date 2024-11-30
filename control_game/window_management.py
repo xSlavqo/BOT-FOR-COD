@@ -13,7 +13,7 @@ def cod_run():
     
     if not cod_window:
         subprocess.Popen(program_path)
-        time.sleep(1)
+        time.sleep(10)
         
         launcher_window = gw.getWindowsWithTitle("launcher")
         launcher_attempts = 0

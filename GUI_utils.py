@@ -1,17 +1,23 @@
 # gui_utils.py
 import json
 from PyQt5 import QtWidgets
+from PyQt5.QtCore import QObject, pyqtSignal
 
+class ConsoleOutput(QObject):
+    new_text = pyqtSignal(str)  # Sygnał do przekazania tekstu do widgetu
 
-class ConsoleOutput:
     def __init__(self, widget):
+        super().__init__()
         self.widget = widget
+        self.new_text.connect(self.widget.append)  # Połącz sygnał z metodą `append`
 
     def write(self, text):
-        self.widget.append(text) 
+        if text.strip():  # Ignoruj puste linie
+            self.new_text.emit(text.strip())  # Emituj sygnał z nowym tekstem
 
     def flush(self):
-        pass  
+        pass  # Wymuszamy przepływ danych na bieżąco (nie zostawiamy pustej metody)
+
 
 def save_widget_states(window):
     try:

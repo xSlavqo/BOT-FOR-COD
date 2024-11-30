@@ -50,6 +50,8 @@ def text_locator(template_path, target_word):
             # Wykonaj kliknięcie
             pyautogui.mouseDown(click_x, click_y)
             pyautogui.mouseUp(click_x, click_y)
+            pyautogui.mouseDown(click_x, click_y)
+            pyautogui.mouseUp(click_x, click_y)
             return True
         else:
             return False
@@ -66,7 +68,6 @@ def expand_and_extract_text(img, match_coords, target_word, expand_ratio=0.2):
     ex, ey = int(expand_ratio * w), int(expand_ratio * h)
     roi = img[max(0, y - ey):min(img.shape[0], y + h + ey), max(0, x - ex):min(img.shape[1], x + w + ex)]
     text = pytesseract.image_to_string(roi, lang='eng', config='--psm 6').strip()
-    print(text)
 
     # Sprawdzenie, czy znaleziony tekst zawiera szukane słowo
     if target_word.lower() in text.lower():

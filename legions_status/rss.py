@@ -9,26 +9,37 @@ from control_game.screen_navigation import *
 from utils.locate import locate
 
 def rss():
-    for _ in range(legions()):
+    legion_count = legions()
+    if legion_count == 0:
+        return True
+    
+    for _ in range(legion_count):
         if not map():
             return False
         time.sleep(1)
         pyautogui.press("f")
         time.sleep(1)
+        
         if not rss_type():
             return False
+        
         for _ in range(2):
             pyautogui.mouseDown(960, 540)
             pyautogui.mouseUp(960, 540)
-            time.sleep(0.2 )
+            time.sleep(0.2)
+        
         if not locate("png/rss_gather.png", 0.99, 5, True):
             continue
         if not locate("png/make_legion.png", 0.99, 5, True):
             return False
+        
         locate("png/one_hero.png", 0.99, 5, True)
+        
         if not locate("png/march.png", 0.99, 5, True):
             return False
+        
         return True
+
     
 
 def rss_type():

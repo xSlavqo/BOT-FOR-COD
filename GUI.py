@@ -1,21 +1,21 @@
 # gui.py
 from PyQt5 import QtWidgets, uic
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 import sys
-import threading
 import gui_utils
 import utils.building_positions
-import task_manager  # Zmieniony import na task_manager
+from task_manager import TaskManager, task_logger
 
 class Ui(QtWidgets.QMainWindow):
     def __init__(self):
         super(Ui, self).__init__()
         uic.loadUi('untitled.ui', self)
 
-        # sys.stdout = gui_utils.ConsoleOutput(self.textEdit_logs)
-        # sys.stderr = gui_utils.ConsoleOutput(self.textEdit_logs)
+        sys.stdout = gui_utils.ConsoleOutput(self.textEdit_logs)
+        sys.stderr = gui_utils.ConsoleOutput(self.textEdit_logs)
         
-        self.stop_event = threading.Event()
+        # Instancja TaskManagera
+        self.task_manager = TaskManager()
         
         # Przyciski start, stop i config
         self.findChild(QtWidgets.QPushButton, 'pushButton_start').clicked.connect(self.start_queue)
@@ -32,17 +32,29 @@ class Ui(QtWidgets.QMainWindow):
         # Wczytaj zapisane stany dla wszystkich QCheckBox i QLineEdit
         gui_utils.load_widget_states(self)
 
+        checkBox_autostart = self.findChild(QtWidgets.QCheckBox, 'checkBox_autostart')
+        if checkBox_autostart.isChecked():
+            self.start_queue_with_delay(10)  # Uruchom z opóźnieniem 10 sekund
+
+        # Połączenie sygnału logowania
+        task_logger.log_signal.connect(self.textEdit_logs.append)
+
         self.show()
 
     def save_states(self):
         gui_utils.save_widget_states(self)
 
     def start_queue(self):
-        self.stop_event.clear()
-        task_manager.start_task_execution(self.stop_event)  # Uruchamiamy kolejkę i monitorowanie zadań
+        # Rozpoczynamy monitorowanie i wykonywanie zadań
+        self.task_manager.start()
+
+    def start_queue_with_delay(self, delay_seconds):
+        # Ustawienie opóźnienia przed uruchomieniem kolejki
+        QTimer.singleShot(delay_seconds * 1000, self.start_queue)
 
     def stop_queue(self):
-        self.stop_event.set()  # Zatrzymujemy kolejkę i monitorowanie zadań
+        # Zatrzymujemy monitorowanie i wykonywanie zadań
+        self.task_manager.stop()
 
 app = QtWidgets.QApplication(sys.argv)
 window = Ui()
