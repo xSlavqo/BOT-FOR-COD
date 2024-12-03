@@ -6,15 +6,15 @@ from legions_status.legions_helper import locate_and_read_legions_status
 from utils.locate import locate
 
 def legions_menu():
-    if locate("png/legions/legions_menu.png", 0.99):
+    if locate("png/legions/legions_menu.png", 0.999):
         return True
     main_screen()
     pyautogui.press("j")
-    return locate("png/legions/legions_menu.png", 0.99)
+    return locate("png/legions/legions_menu.png", 0.999)
 
 def legions():
     if not legions_menu():
         return 1
-    if not locate("png/legions/legions.png", 0.99):
+    if not locate("png/legions/legions.png", 0.999):
         return 1
     return locate_and_read_legions_status()

@@ -1,0 +1,5 @@
+2024-12-01 23:53:17,049 - ERROR - rss - Task Failure: Zadanie zwróci³o False - nie mo¿na odnaleŸæ odpowiedniego elementu
+2024-12-01 23:56:09,976 - ERROR - rss - Task Failure: Zadanie zwróci³o False - nie mo¿na odnaleŸæ odpowiedniego elementu
+2024-12-02 02:47:44,436 - ERROR - rss - Task Failure: Zadanie zwróci³o False - nie mo¿na odnaleŸæ odpowiedniego elementu
+2024-12-02 15:57:14,008 - ERROR - rss - Task Failure: Zadanie zwróci³o False - nie mo¿na odnaleŸæ odpowiedniego elementu
+2024-12-02 15:58:33,845 - ERROR - rss - Task Failure: Zadanie zwróci³o False - nie mo¿na odnaleŸæ odpowiedniego elementu

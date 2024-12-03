@@ -45,9 +45,12 @@ def buildings_positions():
             existing_data = json.load(file)
     else:
         existing_data = {}
-    
-    combined_data = {**new_data, **existing_data}
+
+    # Nadpisujemy tylko zaznaczone punkty w istniejącym configu
+    existing_data.update(new_data)
+
     with open(filename, "w", encoding="utf-8") as file:
-        json.dump(combined_data, file, indent=4, ensure_ascii=False)
-    
+        json.dump(existing_data, file, indent=4, ensure_ascii=False)
+
     print(f"Zaznaczone punkty zostały zapisane do {filename}.")
+

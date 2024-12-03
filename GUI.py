@@ -4,19 +4,25 @@ from PyQt5.QtCore import Qt, QTimer
 import sys
 import gui_utils
 import utils.building_positions
+from train.train import create_train_objects  # Import funkcji do tworzenia klas
 from task_manager import TaskManager, task_logger
+
 
 class Ui(QtWidgets.QMainWindow):
     def __init__(self):
-        super(Ui, self).__init__()
+        super(Ui, self).__init__() 
         uic.loadUi('untitled.ui', self)
+
+        # Tworzenie obiektów Train
+        self.trains = create_train_objects()
+        print("Created Train objects:", self.trains)
 
         sys.stdout = gui_utils.ConsoleOutput(self.textEdit_logs)
         sys.stderr = gui_utils.ConsoleOutput(self.textEdit_logs)
-        
+
         # Instancja TaskManagera
         self.task_manager = TaskManager()
-        
+
         # Przyciski start, stop i config
         self.findChild(QtWidgets.QPushButton, 'pushButton_start').clicked.connect(self.start_queue)
         self.findChild(QtWidgets.QPushButton, 'pushButton_stop').clicked.connect(self.stop_queue)
@@ -28,6 +34,9 @@ class Ui(QtWidgets.QMainWindow):
 
         for lineedit in self.findChildren(QtWidgets.QLineEdit):
             lineedit.editingFinished.connect(self.save_states)
+
+        for combobox in self.findChildren(QtWidgets.QComboBox):
+            combobox.currentIndexChanged.connect(self.save_states)
 
         # Wczytaj zapisane stany dla wszystkich QCheckBox i QLineEdit
         gui_utils.load_widget_states(self)
@@ -55,6 +64,7 @@ class Ui(QtWidgets.QMainWindow):
     def stop_queue(self):
         # Zatrzymujemy monitorowanie i wykonywanie zadań
         self.task_manager.stop()
+
 
 app = QtWidgets.QApplication(sys.argv)
 window = Ui()

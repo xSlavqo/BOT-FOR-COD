@@ -34,17 +34,23 @@ class Task:
         self.interval = interval
         self.last_run = 0
         self.queued = False
+        self.is_running = False  # Nowy atrybut
         self.checkboxes = checkboxes
 
     def should_run(self, current_time):
-        return (current_time - self.last_run) >= self.interval and not self.queued
+        return (current_time - self.last_run) >= self.interval and not self.queued and not self.is_running
 
     def mark_as_queued(self):
         self.queued = True
 
-    def update_last_run(self):
-        self.last_run = time.time()
+    def mark_as_running(self):
+        self.is_running = True
         self.queued = False
+
+    def mark_as_completed(self):
+        self.is_running = False
+        self.last_run = time.time()
+
 
 class TaskManager:
     def __init__(self):
@@ -63,8 +69,11 @@ class TaskManager:
             logger.error(f"Traceback:\n{error_message}")
 
         self.error_count += 1  # Zwiększ licznik błędów
+        task_logger.log_signal.emit(f"ERROR: {task_name} - {error_type}. Licznik błędów: {self.error_count}")  # Informacja o błędzie i liczniku
+
         if self.error_count >= 5:
             self.handle_critical_failure()
+
 
     def handle_critical_failure(self):
         task_logger.log_signal.emit("Przekroczono limit błędów. Restartowanie gry...")
@@ -85,18 +94,25 @@ class TaskManager:
 
     def execute_task(self, task):
         try:
-            cod_run()
+            task.mark_as_running()  # Oznaczamy zadanie jako "w trakcie"
+            if not cod_run():
+                self.log_error("cod_run", "Task Failure", "Gra nie chce się załadować!")
+                task.is_running = False  # Resetujemy status, jeśli gra się nie załadowała
+                self.task_queue.task_done()
+                return
+
             time.sleep(1)
             result = task.function()
             if result:
-                task.update_last_run()
+                task.mark_as_completed()  # Oznaczamy zadanie jako zakończone
             else:
-                self.log_error(task.function.__name__, "Task Failure", "Task zwrócił False")
+                self.log_error(task.function.__name__, "Task Failure", "Zadanie zwróciło False - nie można odnaleźć odpowiedniego elementu")
         except Exception as e:
             self.log_error(task.function.__name__, "Critical Exception", str(e))
         finally:
             self.task_queue.task_done()
-            task.queued = False
+            task.is_running = False  # Resetujemy status w przypadku wyjątków
+
 
     def task_worker(self):
         while not self.stop_event.is_set():
@@ -117,6 +133,8 @@ class TaskManager:
                         self.task_queue.put(task)
                         task.mark_as_queued()
                         summary.append(f"Uruchomiono zadanie: {task.function.__name__}")
+                    elif task.is_running:
+                        summary.append(f"{task.function.__name__}: w trakcie")
                     elif task.queued:
                         summary.append(f"{task.function.__name__}: w kolejce")
                     else:
@@ -126,9 +144,12 @@ class TaskManager:
                 else:
                     summary.append(f"{task.function.__name__}: off")
 
+            summary.append(f"Licznik błędów: {self.error_count}")
+
             if summary:
                 task_logger.log_signal.emit("\n".join(summary))
             time.sleep(2)
+
 
     def start(self):
         self.stop_event.clear()

@@ -17,7 +17,7 @@ def auto_build():
         return False
     if not locate ("png/build/build4.png", 0.99, 5, True):
         pyautogui.mouseDown(292, 792); pyautogui.mouseUp(292, 792)
-        if not locate("png/build/build_new.png", 0.95, 5, True):
+        if not locate("png/build/build_new.png", 0.99, 5, True):
             return False
     else:
         if not locate("png/build/build5.png", 0.95, 5, True):
