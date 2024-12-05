@@ -1,39 +1,39 @@
 {
     "center": {
-        "X": 677,
-        "Y": 169
+        "X": 686,
+        "Y": 176
     },
     "buildings": {
-        "X": 677,
-        "Y": 168
+        "X": 686,
+        "Y": 176
     },
     "labo": {
-        "X": 677,
-        "Y": 168
+        "X": 686,
+        "Y": 176
     },
     "vest": {
-        "X": 1049,
-        "Y": 493
+        "X": 1045,
+        "Y": 488
     },
     "arch": {
-        "X": 1192,
-        "Y": 385
+        "X": 1197,
+        "Y": 401
     },
     "inf": {
-        "X": 1061,
-        "Y": 277
+        "X": 1056,
+        "Y": 274
     },
     "cav": {
-        "X": 896,
-        "Y": 385
+        "X": 902,
+        "Y": 377
     },
     "cele": {
-        "X": 742,
-        "Y": 490
+        "X": 738,
+        "Y": 484
     },
-    "checkBox_woodmap": true,
+    "checkBox_woodmap": false,
     "checkBox_manamap": false,
-    "checkBox_goldmap": true,
+    "checkBox_goldmap": false,
     "checkBox_stonemap": false,
     "checkBox_research": false,
     "checkBox_heal": false,
@@ -46,10 +46,14 @@
     "checkBox_autobuild_6": false,
     "lineEdit_delay": "",
     "lineEdit_restart": "",
-    "checkBox_autostart": true,
+    "checkBox_autostart": false,
     "comboBox_vest": 0,
     "comboBox_arch": 0,
     "comboBox_inf": 0,
-    "comboBox_cav": 0,
-    "comboBox_cele": 0
+    "comboBox_cav": 4,
+    "comboBox_cele": 2,
+    "vest_train_end_time": "2024-12-06 21:10:57",
+    "arch_train_end_time": "2024-12-06 21:10:59",
+    "cele_train_end_time": "2024-12-06 01:15:25",
+    "cav_train_end_time": "2024-12-06 00:30:00"
 }

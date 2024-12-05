@@ -38,9 +38,7 @@ def click_building_coordinates(building_name, config_path=CONFIG_PATH):
     if building_name in config:
         coords = config[building_name]
         x = coords.get("X")
-        print(x)
         y = coords.get("Y")
-        print(y)
         if x is not None and y is not None:
             try:
                 pyautogui.moveTo(x, y)

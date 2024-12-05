@@ -1,5 +1,12 @@
-2024-12-01 23:53:17,049 - ERROR - rss - Task Failure: Zadanie zwróci³o False - nie mo¿na odnaleŸæ odpowiedniego elementu
-2024-12-01 23:56:09,976 - ERROR - rss - Task Failure: Zadanie zwróci³o False - nie mo¿na odnaleŸæ odpowiedniego elementu
-2024-12-02 02:47:44,436 - ERROR - rss - Task Failure: Zadanie zwróci³o False - nie mo¿na odnaleŸæ odpowiedniego elementu
-2024-12-02 15:57:14,008 - ERROR - rss - Task Failure: Zadanie zwróci³o False - nie mo¿na odnaleŸæ odpowiedniego elementu
-2024-12-02 15:58:33,845 - ERROR - rss - Task Failure: Zadanie zwróci³o False - nie mo¿na odnaleŸæ odpowiedniego elementu
+2024-12-06 00:06:06,072 - ERROR - B³¹d podczas aktualizacji budynku: inf
+2024-12-06 00:06:27,383 - ERROR - B³¹d podczas aktualizacji budynku: cav
+2024-12-06 00:06:50,778 - ERROR - B³¹d podczas aktualizacji budynku: cele
+2024-12-06 00:07:20,100 - ERROR - B³¹d podczas aktualizacji budynku: inf
+2024-12-06 00:07:40,389 - ERROR - B³¹d podczas aktualizacji budynku: cav
+2024-12-06 00:08:04,056 - ERROR - B³¹d podczas aktualizacji budynku: cele
+2024-12-06 00:20:34,249 - ERROR - B³¹d podczas aktualizacji budynku: cele
+2024-12-06 00:24:03,394 - ERROR - B³¹d podczas aktualizacji budynku: cele
+2024-12-06 00:31:00,269 - ERROR - B³¹d podczas aktualizacji budynku: cele
+2024-12-06 00:32:36,509 - ERROR - B³¹d podczas aktualizacji budynku: cele
+2024-12-06 00:42:32,203 - ERROR - B³¹d podczas aktualizacji budynku: cele
+2024-12-06 00:42:54,354 - ERROR - B³¹d podczas aktualizacji budynku: cele

@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt, QTimer
 import sys
 import gui_utils
 import utils.building_positions
-from train.train import create_train_objects  # Import funkcji do tworzenia klas
+from train.train import create_training_buildings  # Import funkcji do tworzenia klas
 from task_manager import TaskManager, task_logger
 
 
@@ -12,10 +12,6 @@ class Ui(QtWidgets.QMainWindow):
     def __init__(self):
         super(Ui, self).__init__() 
         uic.loadUi('untitled.ui', self)
-
-        # Tworzenie obiektów Train
-        self.trains = create_train_objects()
-        print("Created Train objects:", self.trains)
 
         sys.stdout = gui_utils.ConsoleOutput(self.textEdit_logs)
         sys.stderr = gui_utils.ConsoleOutput(self.textEdit_logs)
@@ -29,7 +25,7 @@ class Ui(QtWidgets.QMainWindow):
         self.findChild(QtWidgets.QPushButton, 'pushButton_config').clicked.connect(utils.building_positions.buildings_positions)
 
         # Połącz funkcję zapisu przy zmianie stanu checkboxa lub zakończeniu edycji w QLineEdit
-        for checkbox in self.findChildren(QtWidgets.QCheckBox):
+        for checkbox in self.findChildren(QtWidgets.QCheckBox): 
             checkbox.stateChanged.connect(self.save_states)
 
         for lineedit in self.findChildren(QtWidgets.QLineEdit):
