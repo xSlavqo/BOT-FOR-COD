@@ -1,19 +1,21 @@
 # task_manager.py
 
+import logging
 import queue
 import threading
 import time
 from datetime import datetime
+from logging.handlers import RotatingFileHandler
+
 from PyQt5.QtCore import QObject, pyqtSignal
+
 import gui_utils
 from build.auto_build import auto_build
 from small_tasks.hospital import check_hospital
 from legions_status.rss import rss
-from train.train import create_training_buildings, check_train_end_time
+from train.train import TrainingManager
 from control_game.window_management import cod_restart, cod_run
-import logging
 from train.train_utils import read_config
-from logging.handlers import RotatingFileHandler
 
 # Konfiguracja loggera
 logger = logging.getLogger("TaskManager")
@@ -60,86 +62,27 @@ class Task:
 
 class TaskManager:
     def __init__(self):
-        self.buildings = create_training_buildings()  # Tworzenie budynków podczas startu TaskManagera
+        self.buildings = TrainingManager.create_training_buildings()
         self.tasks = [
             Task(check_hospital, 3600, ["heal"]),
             Task(auto_build, 10, ["autobuild"]),
             Task(rss, 60, ["goldmap", "woodmap", "stonemap", "manamap"]),
+            Task(TrainingManager.monitor_trainings, 60, [])
         ]
         self.task_queue = queue.Queue(maxsize=10)
         self.stop_event = threading.Event()
         self.error_count = 0
-        self.last_training_check = 0
-        self.training_check_interval = 5  # Interwał sprawdzania budynków
 
-    def monitor_trainings(self):
-        """Monitoruje budynki szkoleniowe i aktualizuje ich stan."""
-        current_time = time.time()
-        if current_time - self.last_training_check < self.training_check_interval:
-            return  # Ominięcie sprawdzania, jeśli interwał nie minął
+    def start(self):
+        self.stop_event.clear()
+        threading.Thread(target=self.task_worker, daemon=True).start()
+        threading.Thread(target=self.monitor_tasks, daemon=True).start()
 
-        self.last_training_check = current_time
-
-        # Aktualizacja statusu budynków (active) na podstawie konfiguracji
-        config = read_config()
-        for building in self.buildings:
-            building.active = config.get(f"comboBox_{building.name}", 0) > 0
-
-            if building.active:
-                if not building.train_end_time or building.train_end_time <= datetime.now():
-                    if not cod_run():
-                        logger.error("Gra nie jest uruchomiona. Pomijanie budynku.")
-                        continue
-                    if not check_train_end_time(building):
-                        logger.error(f"Błąd podczas aktualizacji budynku: {building.name}")
-                    else:
-                        logger.info(f"Zaktualizowano czas dla budynku: {building.name}")
-
-    def execute_task(self, task):
-        try:
-            task.mark_as_running()
-            if not cod_run():
-                self.log_error(task.function.__name__, "Game Not Running", "Gra nie jest uruchomiona. Pomijanie zadania.")
-                return
-            result = task.function()
-            if result:
-                task.mark_as_completed()
-            else:
-                self.log_error(task.function.__name__, "Task Failure", f"Task {task.function.__name__} failed.")  # Zwiększenie licznika tutaj
-        except Exception as e:
-            self.log_error(task.function.__name__, "Critical Error", str(e))  # Tutaj też zwiększany licznik
-        finally:
-            task.mark_as_completed()
-
-
-    def reset_tasks(self):
-        with self.task_queue.mutex:
-            self.task_queue.queue.clear()
-        for task in self.tasks:
-            task.last_run = 0
-            task.queued = False
-        self.error_count = 0
-
-    def log_error(self, task_name, error_type, error_message):
-        logger.error(f"{task_name} - {error_type}: {error_message}")
-        if error_type != "Task Failure":
-            logger.error(f"Traceback:\n{error_message}")
-        self.error_count += 1
-        task_logger.log_signal.emit(f"ERROR: {task_name} - {error_type}. Licznik błędów: {self.error_count}")
-        if self.error_count >= 5:
-            self.handle_critical_failure()
-
-    def handle_critical_failure(self):
-        task_logger.log_signal.emit("Przekroczono limit błędów. Restartowanie gry...")
-        if cod_restart():
-            self.reset_tasks()
-            task_logger.log_signal.emit("Gra zrestartowana. Wznawianie zadań.")
-        else:
-            task_logger.log_signal.emit("Nie udało się zrestartować gry.")
+    def stop(self):
+        self.stop_event.set()
 
     def task_worker(self):
         while not self.stop_event.is_set():
-            self.monitor_trainings()
             try:
                 task = self.task_queue.get(timeout=1)
                 self.execute_task(task)
@@ -171,10 +114,43 @@ class TaskManager:
                 task_logger.log_signal.emit("\n".join(summary))
             time.sleep(2)
 
-    def start(self):
-        self.stop_event.clear()
-        threading.Thread(target=self.task_worker, daemon=True).start()
-        threading.Thread(target=self.monitor_tasks, daemon=True).start()
+    def execute_task(self, task):
+        try:
+            task.mark_as_running()
+            if not cod_run():
+                self.log_error(task.function.__name__, "Game Not Running", "Gra nie jest uruchomiona. Pomijanie zadania.")
+                return
+            result = task.function()
+            if result:
+                task.mark_as_completed()
+            else:
+                self.log_error(task.function.__name__, "Task Failure", f"Task {task.function.__name__} failed.")
+        except Exception as e:
+            self.log_error(task.function.__name__, "Critical Error", str(e))
+        finally:
+            task.mark_as_completed()
 
-    def stop(self):
-        self.stop_event.set()
+    def reset_tasks(self):
+        with self.task_queue.mutex:
+            self.task_queue.queue.clear()
+        for task in self.tasks:
+            task.last_run = 0
+            task.queued = False
+        self.error_count = 0
+
+    def log_error(self, task_name, error_type, error_message):
+        logger.error(f"{task_name} - {error_type}: {error_message}")
+        if error_type != "Task Failure":
+            logger.error(f"Traceback:\n{error_message}")
+        self.error_count += 1
+        task_logger.log_signal.emit(f"ERROR: {task_name} - {error_type}. Licznik błędów: {self.error_count}")
+        if self.error_count >= 5:
+            self.handle_critical_failure()
+
+    def handle_critical_failure(self):
+        task_logger.log_signal.emit("Przekroczono limit błędów. Restartowanie gry...")
+        if cod_restart():
+            self.reset_tasks()
+            task_logger.log_signal.emit("Gra zrestartowana. Wznawianie zadań.")
+        else:
+            task_logger.log_signal.emit("Nie udało się zrestartować gry.")

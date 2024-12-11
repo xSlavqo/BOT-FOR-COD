@@ -1,10 +1,12 @@
 # train/train.py
 
-from train.train_utils import click_building_coordinates, save_train_end_time, read_config
-from utils.locate import locate
 from datetime import datetime, timedelta
 import pyautogui
 import time
+import re
+
+from train.train_utils import save_train_end_time, read_config
+from utils.locate import locate
 from utils.text_recognition import capture_and_read_text
 
 
@@ -13,101 +15,139 @@ class TrainingBuilding:
         self.name = name
         self.tier = tier
         self.active = tier > 0
+        self.coordinates = None
         self.train_end_time = None
+        self.update_attributes()
 
+    def update_attributes(self, config=None):
+        if config is None:
+            config = read_config()
+        
+        self.tier = config.get(f"comboBox_{self.name}", 0)
+        self.active = self.tier > 0
+        self.coordinates = config.get(self.name)
+        train_end_time = config.get(f"{self.name}_end_time")
+        self.train_end_time = datetime.fromisoformat(train_end_time) if train_end_time else None
 
-def create_training_buildings(config_path="config.json"):
-    building_names = ["vest", "arch", "inf", "cav", "cele"]
-    config = read_config(config_path)
-    buildings = []
-    for name in building_names:
-        tier = config.get(f"comboBox_{name}", 0)
-        print(f"Building: {name}, Tier from config: {tier}")  # Debugowanie
-        train_end_time = config.get(f"{name}_end_time")
-        building = TrainingBuilding(name=name, tier=tier)
-        if train_end_time:
-            building.train_end_time = datetime.fromisoformat(train_end_time)
-        buildings.append(building)
-    return buildings
+    def _click_coordinates(self):
+        if self.coordinates:
+            x, y = self.coordinates.get("X"), self.coordinates.get("Y")
+            if x is not None and y is not None:
+                try:
+                    pyautogui.moveTo(x, y)
+                    pyautogui.mouseDown()
+                    pyautogui.mouseUp()
+                    pyautogui.moveTo(x, y)
+                    pyautogui.mouseDown()
+                    pyautogui.mouseUp()
+                    time.sleep(1)
+                except Exception:
+                    pass
 
+    def enter_building(self):
+        self._click_coordinates()
+        template_path = f"png/train/{self.name}.png"
+        if locate(template_path, 0.96, 5, True):
+            return True
 
+        try:
+            from control_game.screen_navigation import map, city
+            map()
+            if not city():
+                return False
+        except Exception:
+            return False
 
-def calculate_end_time(end_time_text):
-    try:
-        hours, minutes, seconds = map(int, end_time_text.split(":"))
-        return datetime.now() + timedelta(hours=hours, minutes=minutes, seconds=seconds)
-    except ValueError:
-        return datetime.now() + timedelta(minutes=30)  # Domyślny czas 30 minut
+        self._click_coordinates()
+        return locate(template_path, 0.96, 5, True)
 
+    def calculate_end_time(self, end_time_text):
+        try:
+            clean_time = end_time_text.strip()
+            hours, minutes, seconds = map(int, clean_time.split(":"))
+            return datetime.now() + timedelta(hours=hours, minutes=minutes, seconds=seconds)
+        except ValueError as e:
+            print(f"calculate_end_time błąd: '{end_time_text}', błąd: {e}")
+            return datetime.now() + timedelta(minutes=30)
 
-def check_train_end_time(building):
-    if not navigate_to_city():
-        return False
+    def check_train_end_time(self):
+        if not self.enter_building():
+            return False
 
-    click_building_coordinates(building.name)
-    click_building_coordinates(building.name)
-    time.sleep(1)
+        if locate("png/train/queue_speed.png", 0.99):
+            end_time_text = capture_and_read_text((1105, 718, 1390, 741))
+            calculated_time = self.calculate_end_time(end_time_text if end_time_text != "Not Found" else "00:30:00")
+            self.train_end_time = calculated_time
+            save_train_end_time(read_config(), self.name, calculated_time)
+            return True
 
-    template_path = f"png/train/{building.name}.png"
-    if not locate(template_path, 0.96, 5, True):
-        return False
+        return self.create_new_training_task()
 
-    if locate("png/train/queue_speed.png", 0.99):
+    def create_new_training_task(self):
+        coordinates_standard = {
+            'T1': (457, 871),
+            'T2': (569, 873),
+            'T3': (679, 871),
+            'T4': (789, 871),
+            'T5': (900, 870)
+        }
+
+        coordinates_cele = {
+            'T3': (568, 874),
+            'T4': (680, 876),
+            'T5': (791, 874)
+        }
+
+        if self.name == "cele":
+            tier_mapping = {0: "OFF", 1: "T3", 2: "T4", 3: "T5"}
+            tier_key = tier_mapping.get(self.tier, "OFF")
+        else:
+            tier_key = f"T{self.tier}"
+
+        print(f"Building: {self.name}, Tier: {self.tier}, Tier Key: {tier_key}")
+
+        coordinates = coordinates_cele if self.name == "cele" else coordinates_standard
+        coords = coordinates.get(tier_key)
+
+        if not coords:
+            print(f"Nie ma koord dla {self.name} z tier {self.tier}")
+            return False
+
+        pyautogui.click(coords)
+        time.sleep(0.5)
         end_time_text = capture_and_read_text((1105, 718, 1390, 741))
-        calculated_time = calculate_end_time(end_time_text if end_time_text != "Not Found" else "00:30:00")
-        building.train_end_time = calculated_time
-        save_train_end_time(read_config(), building.name, calculated_time)
+        if re.match(r'^\d{1,2}:\d{2}:\d{2}$', end_time_text):
+            calculated_time = self.calculate_end_time(end_time_text)
+        else:
+            calculated_time = self.calculate_end_time("00:30:00")
+        self.train_end_time = calculated_time
+        save_train_end_time(read_config(), self.name, calculated_time)
+        locate("png/train/train_start.png", 0.98, 5, True)
         return True
 
-    # Standardowe koordynaty dla większości budynków
-    coordinates_standard = {
-        'T1': (457, 871),
-        'T2': (569, 873),
-        'T3': (679, 871),
-        'T4': (789, 871),
-        'T5': (900, 870)
-    }
 
-    # Specjalne koordynaty dla obiektu "cele"
-    coordinates_cele = {
-        'T3': (568, 874),
-        'T4': (680, 876),
-        'T5': (791, 874)
-    }
+class TrainingManager:
+    @staticmethod
+    def create_training_buildings(config_path="config.json"):
+        building_names = ["vest", "arch", "inf", "cav", "cele"]
+        config = read_config(config_path)
+        buildings = [TrainingBuilding(name=name) for name in building_names]
+        for building in buildings:
+            building.update_attributes(config)  
+        return buildings
 
-    # Mapowanie tier dla "cele" (0 = OFF, 1 = T3, 2 = T4, 3 = T5)
-    if building.name == "cele":
-        tier_mapping = {0: "OFF", 1: "T3", 2: "T4", 3: "T5"}
-        tier_key = tier_mapping.get(building.tier, "OFF")
-    else:
-        tier_key = f"T{building.tier}"
+    @staticmethod
+    def update_building_attributes(buildings):
+        for building in buildings:
+            building.update_attributes()
 
-    print(f"Building: {building.name}, Tier: {building.tier}, Tier Key: {tier_key}")
-
-    # Wybierz odpowiednie koordynaty w zależności od obiektu
-    coordinates = coordinates_cele if building.name == "cele" else coordinates_standard
-    coords = coordinates.get(tier_key)
-
-    if not coords:
-        print(f"Nie ma koord dla {building.name} z tier {building.tier}")
-        return False  # Jeśli tier jest nieobsługiwany, pomijamy
-
-    pyautogui.click(coords)
-    time.sleep(0.5)
-    end_time_text = capture_and_read_text((1105, 718, 1390, 741))
-    calculated_time = calculate_end_time(end_time_text if end_time_text != "Not Found" else "00:30:00")
-    building.train_end_time = calculated_time
-    save_train_end_time(read_config(), building.name, calculated_time)
-    locate("png/train/train_start.png", 0.98, 5, True)
-    return True
-
-
-def navigate_to_city():
-    try:
-        from control_game.screen_navigation import map, city
-        map()
-        if not city():
-            return False
-    except Exception:
-        return False
-    return True
+    @staticmethod
+    def monitor_trainings(buildings):
+        for building in buildings:
+            config = read_config()
+            building.update_attributes(config)
+            if building.active and building.train_end_time and building.train_end_time <= datetime.now():
+                if not building.check_train_end_time():
+                    print(f"Błąd podczas aktualizacji budynku: {building.name}")
+                else:
+                    print(f"Zaktualizowano czas dla budynku: {building.name}")
