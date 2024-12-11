@@ -99,17 +99,18 @@ class TaskManager:
         try:
             task.mark_as_running()
             if not cod_run():
-                logger.error("Gra nie jest uruchomiona. Pomijanie zadania.")
+                self.log_error(task.function.__name__, "Game Not Running", "Gra nie jest uruchomiona. Pomijanie zadania.")
                 return
             result = task.function()
             if result:
                 task.mark_as_completed()
             else:
-                logger.error(f"Task {task.function.__name__} failed.")
+                self.log_error(task.function.__name__, "Task Failure", f"Task {task.function.__name__} failed.")  # Zwiększenie licznika tutaj
         except Exception as e:
-            logger.error(f"Critical error in task {task.function.__name__}: {e}")
+            self.log_error(task.function.__name__, "Critical Error", str(e))  # Tutaj też zwiększany licznik
         finally:
             task.mark_as_completed()
+
 
     def reset_tasks(self):
         with self.task_queue.mutex:

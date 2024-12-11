@@ -22,12 +22,14 @@ def create_training_buildings(config_path="config.json"):
     buildings = []
     for name in building_names:
         tier = config.get(f"comboBox_{name}", 0)
+        print(f"Building: {name}, Tier from config: {tier}")  # Debugowanie
         train_end_time = config.get(f"{name}_end_time")
         building = TrainingBuilding(name=name, tier=tier)
         if train_end_time:
             building.train_end_time = datetime.fromisoformat(train_end_time)
         buildings.append(building)
     return buildings
+
 
 
 def calculate_end_time(end_time_text):
