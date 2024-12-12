@@ -1,11 +1,9 @@
 # task_manager.py
 
-import logging
 import queue
 import threading
 import time
 from datetime import datetime
-from logging.handlers import RotatingFileHandler
 
 from PyQt5.QtCore import QObject, pyqtSignal
 
@@ -16,14 +14,6 @@ from legions_status.rss import rss
 from train.train import TrainingManager
 from control_game.window_management import cod_restart, cod_run
 from train.train_utils import read_config
-
-# Konfiguracja loggera
-logger = logging.getLogger("TaskManager")
-logger.setLevel(logging.ERROR)
-handler = RotatingFileHandler("errors.txt", maxBytes=1024*1024, backupCount=5)
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
 
 
 class TaskLogger(QObject):
@@ -62,12 +52,11 @@ class Task:
 
 class TaskManager:
     def __init__(self):
-        self.buildings = TrainingManager.create_training_buildings()
         self.tasks = [
             Task(check_hospital, 3600, ["heal"]),
             Task(auto_build, 10, ["autobuild"]),
             Task(rss, 60, ["goldmap", "woodmap", "stonemap", "manamap"]),
-            Task(TrainingManager.monitor_trainings, 60, [])
+            Task(TrainingManager.monitor_trainings, 60, ["train"])
         ]
         self.task_queue = queue.Queue(maxsize=10)
         self.stop_event = threading.Event()
@@ -126,7 +115,7 @@ class TaskManager:
             else:
                 self.log_error(task.function.__name__, "Task Failure", f"Task {task.function.__name__} failed.")
         except Exception as e:
-            self.log_error(task.function.__name__, "Critical Error", str(e))
+            self.log_error(task.function.__name__, "Critical Error", "Task execution failed")
         finally:
             task.mark_as_completed()
 
@@ -139,13 +128,12 @@ class TaskManager:
         self.error_count = 0
 
     def log_error(self, task_name, error_type, error_message):
-        logger.error(f"{task_name} - {error_type}: {error_message}")
-        if error_type != "Task Failure":
-            logger.error(f"Traceback:\n{error_message}")
+        print(f"{task_name} - {error_type}: {error_message}")
         self.error_count += 1
         task_logger.log_signal.emit(f"ERROR: {task_name} - {error_type}. Licznik błędów: {self.error_count}")
         if self.error_count >= 5:
             self.handle_critical_failure()
+
 
     def handle_critical_failure(self):
         task_logger.log_signal.emit("Przekroczono limit błędów. Restartowanie gry...")

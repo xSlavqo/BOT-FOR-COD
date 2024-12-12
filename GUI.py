@@ -4,7 +4,6 @@ from PyQt5.QtCore import Qt, QTimer
 import sys
 import gui_utils
 import utils.building_positions
-from train.train import create_training_buildings  # Import funkcji do tworzenia klas
 from task_manager import TaskManager, task_logger
 
 

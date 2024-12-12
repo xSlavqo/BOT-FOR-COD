@@ -32,7 +32,7 @@
         "Y": 486
     },
     "checkBox_woodmap": false,
-    "checkBox_manamap": true,
+    "checkBox_manamap": false,
     "checkBox_goldmap": false,
     "checkBox_stonemap": false,
     "checkBox_research": false,
@@ -46,8 +46,8 @@
     "checkBox_autobuild_6": false,
     "lineEdit_delay": "",
     "lineEdit_restart": "",
-    "checkBox_autostart": true,
-    "comboBox_vest": 0,
+    "checkBox_autostart": false,
+    "comboBox_vest": 4,
     "comboBox_arch": 0,
     "comboBox_inf": 0,
     "comboBox_cav": 0,
@@ -55,5 +55,6 @@
     "vest_train_end_time": "2024-12-06 21:10:57",
     "arch_train_end_time": "2024-12-06 21:10:59",
     "cele_train_end_time": "2024-12-06 01:15:25",
-    "cav_train_end_time": "2024-12-06 00:30:00"
+    "cav_train_end_time": "2024-12-06 00:30:00",
+    "checkBox_train": true
 }
