@@ -1,4 +1,4 @@
-#rss.py
+# legions_status.rss.py
 
 import time
 import random
@@ -38,7 +38,7 @@ def rss():
         if not locate("png/march.png", 0.99, 5, True):
             return False
         
-        return True
+    return True
 
     
 

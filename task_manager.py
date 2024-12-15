@@ -41,8 +41,8 @@ class TaskManager:
     def __init__(self):
         self.tasks = [
             Task(check_hospital, 3600, ["heal"]),
-            Task(auto_build, 10, ["autobuild"]),
-            Task(rss, 60, ["goldmap", "woodmap", "stonemap", "manamap"]),
+            Task(auto_build, 300, ["autobuild"]),
+            Task(rss, 300, ["goldmap", "woodmap", "stonemap", "manamap"]),
             Task(monitor_trainings, 60, [])
         ]
         self.task_queue = queue.Queue(maxsize=10)
@@ -94,11 +94,15 @@ class TaskManager:
         task.mark_as_running()
         if not cod_run():
             self.error_count += 1
+            if self.error_count >= 5:
+                self.handle_critical_failure()
             return
 
         result = task.function()
         if not result:
             self.error_count += 1
+            if self.error_count >= 5:
+                self.handle_critical_failure()
 
         task.mark_as_completed()
 
