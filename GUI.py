@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt, QTimer
 import sys
 import gui_utils
 import utils.building_positions
-from task_manager import TaskManager, task_logger
+from task_manager import TaskManager
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -39,9 +39,6 @@ class Ui(QtWidgets.QMainWindow):
         checkBox_autostart = self.findChild(QtWidgets.QCheckBox, 'checkBox_autostart')
         if checkBox_autostart.isChecked():
             self.start_queue_with_delay(10)  # Uruchom z opóźnieniem 10 sekund
-
-        # Połączenie sygnału logowania
-        task_logger.log_signal.connect(self.textEdit_logs.append)
 
         self.show()
 

@@ -15,7 +15,7 @@ def capture_and_select_area():
 
     if roi[2] > 0 and roi[3] > 0:
         x, y, w, h = roi
-        area = (x, y, x + w, y + h)
+        area = (x, y, w, h)
         print(f"Selected area: {area}")
         return area
     else:

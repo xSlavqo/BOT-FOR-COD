@@ -3,28 +3,15 @@
 import queue
 import threading
 import time
+import sys
 from datetime import datetime
-
-from PyQt5.QtCore import QObject, pyqtSignal
 
 import gui_utils
 from build.auto_build import auto_build
 from small_tasks.hospital import check_hospital
 from legions_status.rss import rss
-from train.train import TrainingManager
+from train.train import monitor_trainings
 from control_game.window_management import cod_restart, cod_run
-from train.train_utils import read_config
-
-
-class TaskLogger(QObject):
-    log_signal = pyqtSignal(str)
-
-    def __init__(self):
-        super().__init__()
-
-
-task_logger = TaskLogger()
-
 
 class Task:
     def __init__(self, function, interval, checkboxes):
@@ -56,7 +43,7 @@ class TaskManager:
             Task(check_hospital, 3600, ["heal"]),
             Task(auto_build, 10, ["autobuild"]),
             Task(rss, 60, ["goldmap", "woodmap", "stonemap", "manamap"]),
-            Task(TrainingManager.monitor_trainings, 60, ["train"])
+            Task(monitor_trainings, 60, [])
         ]
         self.task_queue = queue.Queue(maxsize=10)
         self.stop_event = threading.Event()
@@ -83,7 +70,7 @@ class TaskManager:
             current_time = time.time()
             summary = []
             for task in self.tasks:
-                if gui_utils.check_task_conditions(task.checkboxes):
+                if not task.checkboxes or gui_utils.check_task_conditions(task.checkboxes):
                     if task.should_run(current_time):
                         self.task_queue.put(task)
                         task.mark_as_queued()
@@ -100,24 +87,20 @@ class TaskManager:
                     summary.append(f"{task.function.__name__}: off")
             summary.append(f"Licznik błędów: {self.error_count}")
             if summary:
-                task_logger.log_signal.emit("\n".join(summary))
+                print("\n".join(summary))
             time.sleep(2)
 
     def execute_task(self, task):
-        try:
-            task.mark_as_running()
-            if not cod_run():
-                self.log_error(task.function.__name__, "Game Not Running", "Gra nie jest uruchomiona. Pomijanie zadania.")
-                return
-            result = task.function()
-            if result:
-                task.mark_as_completed()
-            else:
-                self.log_error(task.function.__name__, "Task Failure", f"Task {task.function.__name__} failed.")
-        except Exception as e:
-            self.log_error(task.function.__name__, "Critical Error", "Task execution failed")
-        finally:
-            task.mark_as_completed()
+        task.mark_as_running()
+        if not cod_run():
+            self.error_count += 1
+            return
+
+        result = task.function()
+        if not result:
+            self.error_count += 1
+
+        task.mark_as_completed()
 
     def reset_tasks(self):
         with self.task_queue.mutex:
@@ -127,18 +110,6 @@ class TaskManager:
             task.queued = False
         self.error_count = 0
 
-    def log_error(self, task_name, error_type, error_message):
-        print(f"{task_name} - {error_type}: {error_message}")
-        self.error_count += 1
-        task_logger.log_signal.emit(f"ERROR: {task_name} - {error_type}. Licznik błędów: {self.error_count}")
-        if self.error_count >= 5:
-            self.handle_critical_failure()
-
-
     def handle_critical_failure(self):
-        task_logger.log_signal.emit("Przekroczono limit błędów. Restartowanie gry...")
         if cod_restart():
             self.reset_tasks()
-            task_logger.log_signal.emit("Gra zrestartowana. Wznawianie zadań.")
-        else:
-            task_logger.log_signal.emit("Nie udało się zrestartować gry.")
