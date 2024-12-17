@@ -53,9 +53,9 @@
     "comboBox_cav": 1,
     "comboBox_cele": 2,
     "checkBox_train": false,
-    "cav_train_end_time": "2024-12-16 04:48:56",
-    "vest_train_end_time": "2024-12-16 23:26:36",
-    "arch_train_end_time": "2024-12-16 23:26:48",
-    "inf_train_end_time": "2024-12-16 23:27:00",
-    "cele_train_end_time": "2024-12-16 23:27:25"
+    "vest_train_end_time": "2024-12-18 00:11:16",
+    "arch_train_end_time": "2024-12-18 00:11:29",
+    "inf_train_end_time": "2024-12-18 00:11:41",
+    "cav_train_end_time": "2024-12-17 05:07:55",
+    "cele_train_end_time": "2024-12-18 00:46:52"
 }

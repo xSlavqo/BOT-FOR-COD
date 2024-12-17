@@ -68,19 +68,19 @@ class TrainingBuilding:
             raise Exception("Nie udało się wejść do budynku")
         
         if locate("png/train/queue_speed.png", 0.99):
-            return self.upadate_training_task()
+            return self.update_training_task()
         else:
             return self.create_new_training_task()
     
-    def upadate_training_task(self):
-        end_time_text = text_recognition((1149, 718, 211, 22))
-        if not end_time_text:
-            print("Nie udało się odczytać czasu zakończenia szkolenia")
-            return False
+    def update_training_task(self):
+        end_time_text = text_recognition((1149, 705, 218, 48)) or "00:30:00"
         calculated_time = calculate_end_time(end_time_text)
         self.train_end_time = calculated_time
         save_train_end_time(read_config(), self.name, calculated_time)
+        pyautogui.press("esc")
+        time.sleep(1)
         return True
+
 
 
     def create_new_training_task(self):
@@ -111,16 +111,15 @@ class TrainingBuilding:
             raise Exception(f"Nie ma koordynatów dla {self.name} z tier {self.tier}")
 
         pyautogui.click(coords)
-        time.sleep(0.5)
-        end_time_text = text_recognition((1274, 875, 233, 42))
-        if not end_time_text:
-            print("Nie udało się odczytać czasu zakończenia szkolenia")
-            return False
+        time.sleep(1)
+        end_time_text = text_recognition((1274, 875, 233, 42)) or "00:30:00"
         calculated_time = calculate_end_time(end_time_text)
         self.train_end_time = calculated_time
         save_train_end_time(read_config(), self.name, calculated_time)
-        locate("png/train/train_start.png", 0.98, 5, True)
-        return True
+        if locate("png/train/train_start.png", 0.98, 5, True):
+            return True
+        return False
+
 
 
 def calculate_end_time(end_time_text):
@@ -129,13 +128,15 @@ def calculate_end_time(end_time_text):
     return datetime.now() + timedelta(hours=hours, minutes=minutes, seconds=seconds)
 
 
-# Tworzenie budynków tylko raz
 buildings = [TrainingBuilding(name) for name in ["vest", "arch", "inf", "cav", "cele"]]
 
 def monitor_trainings():
     for building in buildings:
         building.update_attributes()
-        if building.active > 0 and (building.train_end_time is None or building.train_end_time <= datetime.now()):
+        if not building.active:
+            continue
+        if building.train_end_time is None or building.train_end_time <= datetime.now():
             if not building.check_train_end_time():
                 raise Exception(f"Błąd podczas aktualizacji budynku: {building.name}")
-    return True  # Gwarancja zwrotu True w przypadku braku błędów
+    
+    return True
