@@ -92,19 +92,26 @@ class TaskManager:
 
     def execute_task(self, task):
         task.mark_as_running()
-        if not cod_run():
+        try:
+            if not cod_run():
+                self.error_count += 1
+                if self.error_count >= 1:
+                    self.handle_critical_failure()
+                return
+
+            result = task.function()
+            if not result:
+                self.error_count += 1
+                if self.error_count >= 5:
+                    self.handle_critical_failure()
+        except Exception as e:
             self.error_count += 1
+            print(f"Błąd podczas wykonywania zadania {task.function.__name__}: {e}")
             if self.error_count >= 5:
                 self.handle_critical_failure()
-            return
+        finally:
+            task.mark_as_completed()
 
-        result = task.function()
-        if not result:
-            self.error_count += 1
-            if self.error_count >= 5:
-                self.handle_critical_failure()
-
-        task.mark_as_completed()
 
     def reset_tasks(self):
         with self.task_queue.mutex:

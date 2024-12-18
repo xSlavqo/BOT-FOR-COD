@@ -1,15 +1,35 @@
-# utils/text_recognition.py
-
 import cv2
 import numpy as np
 import mss
 import pytesseract
 import re
+import pygetwindow as gw
+
+def find_call_of_dragons_monitor():
+    try:
+        window = gw.getWindowsWithTitle('Call of Dragons')[0]
+        window_x, window_y = window.left, window.top
+
+        with mss.mss() as sct:
+            for index, monitor in enumerate(sct.monitors[1:], start=1):
+                mon_left = monitor['left']
+                mon_top = monitor['top']
+                mon_width = monitor['width']
+                mon_height = monitor['height']
+
+                if (mon_left <= window_x < mon_left + mon_width) and (mon_top <= window_y < mon_top + mon_height):
+                    return index
+
+        raise Exception("Nie znaleziono monitora z Call of Dragons")
+    except IndexError:
+        raise Exception("Nie znaleziono okna Call of Dragons")
 
 def text_recognition(region_coordinates):
     try:
+        monitor_index = find_call_of_dragons_monitor()
+        
         with mss.mss() as sct:
-            screenshot = np.array(sct.grab(sct.monitors[2]))
+            screenshot = np.array(sct.grab(sct.monitors[monitor_index]))
         
         x, y, width, height = region_coordinates
         region = screenshot[y:y+height, x:x+width]  
@@ -24,10 +44,9 @@ def text_recognition(region_coordinates):
         
         if time_match:
             return time_match.group(0)
-        return None  # jawne zwrócenie None, jeśli nie ma dopasowania
+        return None
     
     except Exception as e:
-        # Obsługa błędu (jeśli Tesseract, MSS lub inny fragment rzuci wyjątek)
         return None
 
 if __name__ == "__main__":

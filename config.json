@@ -47,15 +47,11 @@
     "lineEdit_delay": "",
     "lineEdit_restart": "",
     "checkBox_autostart": false,
-    "comboBox_vest": 4,
-    "comboBox_arch": 4,
-    "comboBox_inf": 4,
+    "comboBox_vest": 0,
+    "comboBox_arch": 0,
+    "comboBox_inf": 0,
     "comboBox_cav": 1,
-    "comboBox_cele": 2,
+    "comboBox_cele": 0,
     "checkBox_train": false,
-    "vest_train_end_time": "2024-12-18 00:11:16",
-    "arch_train_end_time": "2024-12-18 00:11:29",
-    "inf_train_end_time": "2024-12-18 00:11:41",
-    "cav_train_end_time": "2024-12-17 05:07:55",
-    "cele_train_end_time": "2024-12-18 00:46:52"
+    "cav_train_end_time": "2024-12-18 21:45:22"
 }
