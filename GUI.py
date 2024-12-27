@@ -3,7 +3,7 @@ from PyQt5 import QtWidgets, uic
 from PyQt5.QtCore import Qt, QTimer
 import sys
 import gui_utils
-import utils.building_positions
+import utils.buildings.save_position
 from task_manager import TaskManager
 
 
@@ -21,7 +21,7 @@ class Ui(QtWidgets.QMainWindow):
         # Przyciski start, stop i config
         self.findChild(QtWidgets.QPushButton, 'pushButton_start').clicked.connect(self.start_queue)
         self.findChild(QtWidgets.QPushButton, 'pushButton_stop').clicked.connect(self.stop_queue)
-        self.findChild(QtWidgets.QPushButton, 'pushButton_config').clicked.connect(utils.building_positions.buildings_positions)
+        self.findChild(QtWidgets.QPushButton, 'pushButton_config').clicked.connect(utils.buildings.save_position.save_position)
 
         # Połącz funkcję zapisu przy zmianie stanu checkboxa lub zakończeniu edycji w QLineEdit
         for checkbox in self.findChildren(QtWidgets.QCheckBox): 

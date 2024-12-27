@@ -6,8 +6,8 @@ import time
 import re
 
 from tasks.train.train_utils import save_train_end_time, read_config
-from utils.locate import locate
-from utils.text_recognition import text_recognition
+from utils.helpers.locate import locate
+from utils.helpers.text_recognition import text_recognition
 
 
 class TrainingBuilding:

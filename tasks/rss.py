@@ -6,7 +6,7 @@ import pyautogui
 from gui_utils import get_checkbox_state
 from tasks.legions.legions import legions
 from control_game.screen_navigation import *
-from utils.locate import locate
+from utils.helpers.locate import locate
 
 def rss():
     legion_count = legions()

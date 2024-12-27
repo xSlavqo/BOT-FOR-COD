@@ -3,7 +3,7 @@
 import pygetwindow as gw
 import time
 import subprocess
-from utils.locate import *
+from utils.helpers.locate import *
 
 program_path = r"C:/Program Files (x86)/Call of Dragons/launcher.exe"
 

@@ -3,7 +3,7 @@ import pyautogui
 import time
 from control_game.screen_navigation import *
 from tasks.build.build_helper import text_locator
-from utils.locate import locate
+from utils.helpers.locate import locate
 
 def auto_build():
     if not city():

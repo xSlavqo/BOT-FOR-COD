@@ -2,7 +2,7 @@
 
 import pyautogui
 import time
-from utils.locate import locate
+from utils.helpers.locate import locate
 
 def check_and_navigate(target_image, alt_image, esc_attempts=0, space_attempts=0):
     max_esc_presses = 10

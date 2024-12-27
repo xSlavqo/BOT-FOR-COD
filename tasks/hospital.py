@@ -1,7 +1,7 @@
 # hospital.py
 import pyautogui
 import time
-from utils.locate import locate
+from utils.helpers.locate import locate
 from control_game.screen_navigation import city
 
 def check_hospital():

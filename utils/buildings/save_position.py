@@ -1,9 +1,9 @@
-# buildings_positions.py
+# utils/buidlings/save_position.py
 
 import cv2, numpy as np, os, json
 from PIL import ImageGrab
 
-def buildings_positions():
+def save_position():
     main_project_path = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     filename = os.path.join(main_project_path, "config.json")
     
