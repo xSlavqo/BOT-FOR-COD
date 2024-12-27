@@ -2,7 +2,7 @@
 import time
 import pyautogui
 from control_game.screen_navigation import main_screen
-from legions_status.legions_helper import locate_and_read_legions_status
+from tasks.legions.legions_helper import locate_and_read_legions_status
 from utils.locate import locate
 
 def legions_menu():

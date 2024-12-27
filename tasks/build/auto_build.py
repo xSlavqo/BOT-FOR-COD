@@ -2,7 +2,7 @@
 import pyautogui
 import time
 from control_game.screen_navigation import *
-from build.build_helper import text_locator
+from tasks.build.build_helper import text_locator
 from utils.locate import locate
 
 def auto_build():

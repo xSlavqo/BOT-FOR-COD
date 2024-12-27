@@ -7,10 +7,10 @@ import sys
 from datetime import datetime
 
 import gui_utils
-from build.auto_build import auto_build
-from small_tasks.hospital import check_hospital
-from legions_status.rss import rss
-from train.train import monitor_trainings
+from tasks.build.auto_build import auto_build
+from tasks.hospital import check_hospital
+from tasks.rss import rss
+from tasks.train.train import monitor_trainings
 from control_game.window_management import cod_restart, cod_run
 
 class Task:

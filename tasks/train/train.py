@@ -1,11 +1,11 @@
-# train/train.py
+# tasks/train/train.py
 
 from datetime import datetime, timedelta
 import pyautogui
 import time
 import re
 
-from train.train_utils import save_train_end_time, read_config
+from tasks.train.train_utils import save_train_end_time, read_config
 from utils.locate import locate
 from utils.text_recognition import text_recognition
 
@@ -46,7 +46,6 @@ class TrainingBuilding:
 
     def enter_building(self):
         if self._try_enter_building():
-            print("wejdz 1")
             return True
     
         try:
@@ -56,13 +55,11 @@ class TrainingBuilding:
                 return False
         except Exception as e:
             raise Exception(f"Błąd w enter_building: {e}")
-        print("wejdz 2")
         return self._try_enter_building()
     
     def _try_enter_building(self):
         self._click_coordinates()
         template_path = f"png/train/{self.name}.png"
-        print("enter building")
         return locate(template_path, 0.96, 5, True)
 
     def check_train_end_time(self):
@@ -79,7 +76,6 @@ class TrainingBuilding:
         calculated_time = calculate_end_time(end_time_text)
         self.train_end_time = calculated_time
         save_train_end_time(read_config(), self.name, calculated_time)
-        print("zapisz_update")
         pyautogui.press("esc")
         time.sleep(1)
         return True
@@ -119,7 +115,6 @@ class TrainingBuilding:
         calculated_time = calculate_end_time(end_time_text)
         self.train_end_time = calculated_time
         save_train_end_time(read_config(), self.name, calculated_time)
-        print("zapisz_create")
         if locate("png/train/train_start.png", 0.98, 5, True):
             return True
         return False
