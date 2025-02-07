@@ -1,4 +1,4 @@
-# utils.locate.py
+# utils.helpers.locate.py
 import cv2
 import numpy as np
 import mss
@@ -37,8 +37,8 @@ def locate(template_path, threshold, max_time=5, click_center=False):
                     center_y = matches[0][1] + template.shape[0] // 2
                     pyautogui.click(center_x + monitor["left"], center_y + monitor["top"])
                 
-                # Losowe opóźnienie od 1.5 do 3 sekund
-                time.sleep(random.uniform(0.7, 1.6))
+                    # Losowe opóźnienie od 1.5 do 3 sekund
+                    time.sleep(random.uniform(0.7, 1.6))
                 return True
 
     return False

@@ -10,6 +10,7 @@ from tasks.build.auto_build import auto_build
 from tasks.hospital import check_hospital
 from tasks.rss import rss
 from tasks.train.train import monitor_trainings
+from tasks.buffs import monitor_buffs
 import gui_utils
 
 class Task:
@@ -32,6 +33,7 @@ class TaskManager:
             Task(check_hospital, 3600, ["heal"]),
             Task(auto_build, 300, ["autobuild"]),
             Task(rss, 300, ["goldmap", "woodmap", "stonemap", "manamap"]),
+            Task(monitor_buffs, 60, ["buff_gather", "buff_buff"]),
         ]
         self.task_queue = queue.Queue(maxsize=10)
         self.stop_event = threading.Event()

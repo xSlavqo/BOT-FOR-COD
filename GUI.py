@@ -9,7 +9,7 @@ from task_manager import TaskManager
 
 class Ui(QtWidgets.QMainWindow):
     def __init__(self):
-        super(Ui, self).__init__() 
+        super(Ui, self).__init__()  
         uic.loadUi('untitled.ui', self)
 
         sys.stdout = gui_utils.ConsoleOutput(self.textEdit_logs)
@@ -38,7 +38,7 @@ class Ui(QtWidgets.QMainWindow):
 
         checkBox_autostart = self.findChild(QtWidgets.QCheckBox, 'checkBox_autostart')
         if checkBox_autostart.isChecked():
-            self.start_queue_with_delay(10)  # Uruchom z opóźnieniem 10 sekund
+            self.start_queue_with_delay(1)  # Uruchom z opóźnieniem 10 sekund
 
         self.show()
 

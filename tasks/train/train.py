@@ -37,6 +37,7 @@ class TrainingBuilding:
                     pyautogui.moveTo(x, y)
                     pyautogui.mouseDown()
                     pyautogui.mouseUp()
+                    time.sleep(2)
                     pyautogui.moveTo(x, y)
                     pyautogui.mouseDown()
                     pyautogui.mouseUp()
@@ -116,6 +117,9 @@ class TrainingBuilding:
         self.train_end_time = calculated_time
         save_train_end_time(read_config(), self.name, calculated_time)
         if locate("png/train/train_start.png", 0.98, 5, True):
+            time.sleep(0.3)
+            pyautogui.press("esc")
+            time.sleep(1)
             return True
         return False
 
