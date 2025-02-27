@@ -90,7 +90,9 @@ def monitor_buffs():
         return False
 
     for buff in active_not_running:
-        buff.check_is_running()
+        if buff.end_time and (datetime.now() - buff.end_time) >= timedelta(hours=24):
+            buff.check_is_running()
+
 
     active_not_running = [buff for buff in buffs if buff.is_active and not buff.is_running and buff.is_available]
 
