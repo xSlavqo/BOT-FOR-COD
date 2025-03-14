@@ -37,34 +37,24 @@ class Buff:
     def is_running(self):
         return self.end_time and self.end_time > datetime.now()
 
-    def check_is_running(self):
-        if locate(f"png/buffs/{self.name}_8.png", 0.99):
-            self.update_end_time_in_minutes(30)
-        elif locate(f"png/buffs/{self.name}_24.png", 0.99):
-            self.update_end_time_in_minutes(30)
-
-    def update_end_time_in_minutes(self, minutes):
-        self.end_time = datetime.now() + timedelta(minutes=minutes)
-
     @staticmethod
     def enter_inv():
         if not main_screen():
             return False
-
         pyautogui.press("i")
         time.sleep(1)
         pyautogui.click(324, 621)
         return True
 
     def active_buff(self):
-        if locate(f"png/buffs/{self.name}2_8.png", 0.99, 5, True):
-            if locate("png/buffs/buff_start.png", 0.99, 5, True):
-                self.update_end_time_in_minutes(480)
-                return True
-
         if locate(f"png/buffs/{self.name}2_24.png", 0.99, 5, True):
             if locate("png/buffs/buff_start.png", 0.99, 5, True):
-                self.update_end_time_in_minutes(1440)
+                self.end_time = datetime.now() + timedelta(hours=24)
+                return True
+
+        if locate(f"png/buffs/{self.name}2_8.png", 0.99, 5, True):
+            if locate("png/buffs/buff_start.png", 0.99, 5, True):
+                self.end_time = datetime.now() + timedelta(hours=8)
                 return True
 
         self.is_available = False
@@ -82,19 +72,6 @@ def monitor_buffs():
         return True
 
     active_not_running = [buff for buff in active_not_running if buff.is_available]
-
-    if not active_not_running:
-        return True
-
-    if not main_screen():
-        return False
-
-    for buff in active_not_running:
-        if buff.end_time and (datetime.now() - buff.end_time) >= timedelta(hours=24):
-            buff.check_is_running()
-
-
-    active_not_running = [buff for buff in buffs if buff.is_active and not buff.is_running and buff.is_available]
 
     if not active_not_running:
         return True

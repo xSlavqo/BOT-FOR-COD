@@ -26,19 +26,15 @@ def save_widget_states(window):
     except (FileNotFoundError, json.JSONDecodeError):
         states = {}
 
-    # Zapisz stany wszystkich QCheckBox
     for checkbox in window.findChildren(QtWidgets.QCheckBox):
         states[checkbox.objectName()] = checkbox.isChecked()
 
-    # Zapisz tekst wszystkich QLineEdit
     for lineedit in window.findChildren(QtWidgets.QLineEdit):
         states[lineedit.objectName()] = lineedit.text()
 
-    # Zapisz wybrany indeks wszystkich QComboBox
     for combobox in window.findChildren(QtWidgets.QComboBox):
         states[combobox.objectName()] = combobox.currentIndex()
 
-    # Zapisz dane do pliku JSON
     with open('config.json', 'w') as file:
         json.dump(states, file, indent=4)
 
@@ -47,20 +43,21 @@ def load_widget_states(window):
     try:
         with open('config.json', 'r') as file:
             states = json.load(file)
-
-            # Wczytaj stany dla wszystkich QCheckBox
-            for checkbox in window.findChildren(QtWidgets.QCheckBox):
-                checkbox.setChecked(states.get(checkbox.objectName(), False))
-
-            # Wczytaj tekst dla wszystkich QLineEdit
-            for lineedit in window.findChildren(QtWidgets.QLineEdit):
-                lineedit.setText(states.get(lineedit.objectName(), ""))
-
-            # Wczytaj wybrany indeks dla wszystkich QComboBox
-            for combobox in window.findChildren(QtWidgets.QComboBox):
-                combobox.setCurrentIndex(states.get(combobox.objectName(), 0))
     except (FileNotFoundError, json.JSONDecodeError):
-        pass
+        states = {}
+
+    for checkbox in window.findChildren(QtWidgets.QCheckBox):
+        if checkbox.objectName() in states:
+            checkbox.setChecked(states[checkbox.objectName()])
+
+    for lineedit in window.findChildren(QtWidgets.QLineEdit):
+        if lineedit.objectName() in states:
+            lineedit.setText(states[lineedit.objectName()])
+
+    for combobox in window.findChildren(QtWidgets.QComboBox):
+        if combobox.objectName() in states:
+            combobox.setCurrentIndex(states[combobox.objectName()])
+
 
 
 def get_checkbox_state(key):

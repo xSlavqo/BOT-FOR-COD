@@ -31,7 +31,7 @@ class TaskManager:
             Task(rss, 300, ["goldmap", "woodmap", "stonemap", "manamap"]),
             Task(auto_build, 300, ["autobuild"]),
             Task(check_hospital, 3600, ["heal"]),
-            Task(monitor_trainings, 60, []),
+            Task(monitor_trainings, 60, ["train"]),
             Task(monitor_buffs, 60, ["buff_gather", "buff_buff"]),
         ]
         self.task_queue = queue.Queue(maxsize=10)
