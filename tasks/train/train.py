@@ -61,7 +61,7 @@ class TrainingBuilding:
     def _try_enter_building(self):
         self._click_coordinates()
         template_path = f"png/train/{self.name}.png"
-        return locate(template_path, 0.96, 5, True)
+        return locate(template_path, 0.97, 5, True)
 
     def check_train_end_time(self):
         if not self.enter_building():

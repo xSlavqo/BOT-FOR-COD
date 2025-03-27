@@ -1,4 +1,5 @@
 # task_manager.py
+
 import queue
 import threading
 import time
@@ -25,6 +26,7 @@ class Task:
     def should_run(self, current_time):
         return (current_time - self.last_run) >= self.interval and not self.in_queue and not self.running
 
+
 class TaskManager:
     def __init__(self):
         self.tasks = [
@@ -32,7 +34,7 @@ class TaskManager:
             Task(auto_build, 300, ["autobuild"]),
             Task(check_hospital, 3600, ["heal"]),
             Task(monitor_trainings, 60, ["train"]),
-            Task(monitor_buffs, 60, ["buff_gather", "buff_buff"]),
+            Task(monitor_buffs, self.get_buff_dynamic_interval(), ["buff_gather", "buff_buff"]),  # ✅ Dynamiczny interwał!
         ]
         self.task_queue = queue.Queue(maxsize=10)
         self.stop_event = threading.Event()
@@ -74,6 +76,23 @@ class TaskManager:
             task.running = False
         self.error_count = 0
 
+    def get_buff_dynamic_interval(self):
+        config = read_config()
+        buff_times = []
+
+        for key, value in config.items():
+            if "buff" in key and key.endswith("_end_time"):
+                try:
+                    end_time = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+                    remaining_seconds = (end_time - datetime.now()).total_seconds()
+                    if remaining_seconds > 0:
+                        buff_times.append(remaining_seconds)
+                except (ValueError, TypeError):
+                    continue
+
+        min_interval = min(buff_times) if buff_times else 300  # Domyślnie 5 minut
+        return max(int(min_interval), 60)  # Nie krócej niż 60 sekund!
+
     def execute_task(self, task):
         task.in_queue = False
         task.running = True
@@ -84,6 +103,14 @@ class TaskManager:
             result = task.function()
             if not result:
                 self.handle_task_failure(task, "Zadanie nie powiodło się")
+
+            # ✅ Aktualizacja interwału monitor_buffs dopiero po jego wykonaniu
+            if task.function == monitor_buffs:
+                for t in self.tasks:
+                    if t.function == monitor_buffs:
+                        t.interval = self.get_buff_dynamic_interval()
+                        break
+
         except Exception as e:
             self.handle_task_error(task, f"Błąd: {e}")
         finally:
@@ -101,8 +128,15 @@ class TaskManager:
                     summary.append(f"{task.function.__name__}: w kolejce")
                 else:
                     time_to_next_run = task.interval - (current_time - task.last_run)
-                    summary.append(f"{task.function.__name__}: czas do następnego wywołania: {int(time_to_next_run)} sekund")
+                    
+                    if time_to_next_run >= 300:  # 5 minut = 300 sekund
+                        next_run_time = datetime.fromtimestamp(current_time + time_to_next_run).strftime("%H:%M:%S")
+                        summary.append(f"{task.function.__name__}: następne wywołanie o {next_run_time}")
+                    else:
+                        summary.append(f"{task.function.__name__}: czas do następnego wywołania: {int(time_to_next_run)} sekund")
+        
         print("\n".join(summary))
+
 
     def update_tasks(self):
         current_time = time.time()
