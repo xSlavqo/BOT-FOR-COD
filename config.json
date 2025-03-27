@@ -52,7 +52,7 @@
     "comboBox_inf": 4,
     "comboBox_cav": 4,
     "comboBox_cele": 2,
-    "checkBox_train": false,
+    "checkBox_train": true,
     "checkBox_buff_gather": false,
     "checkBox_buff_buff": false,
     "buff_gather_end_time": "2025-03-21 12:30:59",
@@ -60,9 +60,9 @@
     "buff_wood_end_time": "2025-03-20 16:58:17",
     "buff_stone_end_time": "2025-03-20 02:09:24",
     "buff_mana_end_time": "2025-03-20 02:30:06",
-    "vest_train_end_time": "2025-03-23 12:09:30",
-    "arch_train_end_time": "2025-03-23 12:09:38",
-    "inf_train_end_time": "2025-03-23 12:09:40",
-    "cav_train_end_time": "2025-03-23 02:27:08",
-    "cele_train_end_time": "2025-03-23 02:27:15"
+    "vest_train_end_time": "2025-03-28 10:59:41",
+    "arch_train_end_time": "2025-03-28 10:59:44",
+    "inf_train_end_time": "2025-03-28 10:59:38",
+    "cav_train_end_time": "2025-03-28 10:59:34",
+    "cele_train_end_time": "2025-03-28 10:59:31"
 }

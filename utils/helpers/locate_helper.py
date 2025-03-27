@@ -45,7 +45,7 @@ def locate_and_evaluate(template_path, threshold):
     return best_match_value * 100, best_match_location
 
 if __name__ == "__main__":
-    match_percentage, match_location = locate_and_evaluate("png/train/cele.png", 0.999)
+    match_percentage, match_location = locate_and_evaluate("png/train/cav.png", 0.99)
     print(f"Dopasowanie: {match_percentage:.2f}%")
     if match_location:
         print(f"Najlepszy fragment: {match_location}")
