@@ -14,7 +14,7 @@ class Ui(QtWidgets.QMainWindow):
         uic.loadUi('untitled.ui', self)
         sys.stdout = gui_utils.ConsoleOutput(self.textEdit_logs)
         sys.stderr = gui_utils.ConsoleOutput(self.textEdit_logs)
-        self.task_manager = TaskManager()
+        self.task_manager = TaskManager()   
 
         self.initializing = True
 

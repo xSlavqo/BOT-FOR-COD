@@ -61,7 +61,7 @@ class TrainingBuilding:
     def _try_enter_building(self):
         self._click_coordinates()
         template_path = f"png/train/{self.name}.png"
-        return locate(template_path, 0.98, 5, True)
+        return locate(template_path, 0.97, 5, True)
 
     def check_train_end_time(self):
         if not self.enter_building():
@@ -117,9 +117,9 @@ class TrainingBuilding:
         self.train_end_time = calculated_time
         save_train_end_time(read_config(), self.name, calculated_time)
         if locate("png/train/train_start.png", 0.98, 5, True):
-            time.sleep(0.3)
+            time.sleep(0.6)
             pyautogui.press("esc")
-            time.sleep(1)
+            time.sleep(3)
             return True
         return False
 
