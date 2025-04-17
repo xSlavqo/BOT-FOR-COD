@@ -36,7 +36,7 @@
     "checkBox_goldmap": false,
     "checkBox_stonemap": false,
     "checkBox_research": false,
-    "checkBox_heal": true,
+    "checkBox_heal": false,
     "checkBox_autobuild": false,
     "checkBox_1": false,
     "checkBox_autobuild_2": false,
@@ -52,7 +52,7 @@
     "comboBox_inf": 3,
     "comboBox_cav": 3,
     "comboBox_cele": 1,
-    "checkBox_train": true,
+    "checkBox_train": false,
     "checkBox_buff_gather": false,
     "checkBox_buff_buff": false,
     "buff_gather_end_time": "2025-03-21 12:30:59",
@@ -60,9 +60,9 @@
     "buff_wood_end_time": "2025-03-20 16:58:17",
     "buff_stone_end_time": "2025-03-20 02:09:24",
     "buff_mana_end_time": "2025-03-20 02:30:06",
-    "vest_train_end_time": "2025-03-31 01:14:45",
-    "arch_train_end_time": "2025-03-31 01:12:08",
-    "inf_train_end_time": "2025-03-31 01:12:40",
-    "cav_train_end_time": "2025-03-31 01:13:14",
-    "cele_train_end_time": "2025-03-31 01:15:18"
+    "vest_train_end_time": "2025-04-03 22:53:27",
+    "arch_train_end_time": "2025-04-04 05:02:02",
+    "inf_train_end_time": "2025-04-03 22:54:00",
+    "cele_train_end_time": "2025-04-03 22:55:06",
+    "cav_train_end_time": "2025-04-03 22:54:33"
 }

@@ -68,6 +68,7 @@ class TrainingBuilding:
             raise Exception("Nie udało się wejść do budynku")
         
         if locate("png/train/queue_speed.png", 0.99, 2):
+            time.sleep(2)
             return self.update_training_task()
         else:
             return self.create_new_training_task()
